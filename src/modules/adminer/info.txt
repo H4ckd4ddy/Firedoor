@@ -1,0 +1,1 @@
+}elseif(($action == "adminer")||isset($_GET['file'])||isset($_GET['db'])||isset($_GET['username'])){

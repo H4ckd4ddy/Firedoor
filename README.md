@@ -1,2 +1,43 @@
 # Firedoor
 Webserver firewall manager / monitoring / database administration / Web shell
+
+
+Why use the best practices when you can use the worsts ?
+
+The challenge of this project is to use PHP, Shell script, JS, HTML and CSS to make a fonctionnal and usefull webserver manager in only one file.
+
+
+## Build
+##### Export code in one file :
+
+```
+./build.sh
+```
+
+## Install
+
+##### Install all dependencies :
+
+* net-tools
+* at
+* openssl
+* iptables
+* apache2
+* php5
+
+
+##### Export code in one file :
+
+```
+./build.sh
+```
+
+##### Place ```build/firedoor.php```in your webserver directory
+
+##### Install firedoor service with :
+
+```
+./firedoor.php install
+```
+
+Default password : **firedoor**
