@@ -25,13 +25,6 @@ The challenge of this project is to use PHP, Shell script, JS, HTML and CSS to m
 * apache2
 * php5
 
-
-##### Export code in one file :
-
-```
-./build.sh
-```
-
 ##### Place ```build/firedoor.php```in your webserver directory
 
 ##### Install firedoor service with :
