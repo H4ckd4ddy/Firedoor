@@ -26,28 +26,23 @@ from firedoor_modules_manager import *
 
 version = 4.0
 
-# SETTINGS BEGIN
-settings = {}
-settings['logs_path'] = '/var/log'
-settings['config_directory'] = '/etc/firedoor/'
-settings['session_timeout'] = 1800
-# SETTINGS END
-
 # GLOBAL INIT BEGIN
 public = {}
-public['config_directory'] = settings['config_directory']
+public['logs_path'] = '/var/log'
+public['config_directory'] = '/etc/firedoor/'
+public['session_timeout'] = 1800
 public['database'] = None
 public['sessions'] = {}
 if hasattr(sys, '_MEIPASS'):
-	base_directory = getattr(sys, '_MEIPASS', os.getcwd())
+	public['base_directory'] = getattr(sys, '_MEIPASS', os.getcwd())
 else:
-	base_directory = os.path.dirname(os.path.realpath(__file__))
-os.chdir(base_directory)
+	public['base_directory'] = os.path.dirname(os.path.realpath(__file__))
+os.chdir(public['base_directory'])
 # GLOBAL INIT END
 
 
 def initialisation():
-	public['database'] = database(settings['config_directory']+'database.json')
+	public['database'] = database(public['config_directory']+'database.json')
 	modules_manager.import_modules()
 
 def install():
@@ -76,20 +71,20 @@ def run_cli_module(module_name, args):
 			if hasattr(modules_manager.modules[module_name].obj, 'install_entrypoint'):
 				os.chdir(modules_manager.modules[module_name].path)
 				modules_manager.modules[module_name].obj.install_entrypoint(public)
-				os.chdir(base_directory)
+				os.chdir(public['base_directory'])
 	elif module_name == 'uninstall':
 		if confirm_uninstall():
 			for module_name in modules_manager.modules:
 				if hasattr(modules_manager.modules[module_name].obj, 'uninstall_entrypoint'):
 					os.chdir(modules_manager.modules[module_name].path)
 					modules_manager.modules[module_name].obj.uninstall_entrypoint(public)
-					os.chdir(base_directory)
+					os.chdir(public['base_directory'])
 			uninstall()
 	elif module_name in modules_manager.modules:
 		if hasattr(modules_manager.modules[module_name].obj, 'cli_entrypoint'):
 			os.chdir(modules_manager.modules[module_name].path)
 			modules_manager.modules[module_name].obj.cli_entrypoint(public, args)
-			os.chdir(base_directory)
+			os.chdir(public['base_directory'])
 		else:
 			print('Module "{}" does not have cli interface'.format(module_name))
 	else:
@@ -102,7 +97,7 @@ def run_web_module(request_handler, module_name, get, post):
 			public['client_ip'] = request_handler.client_address[0]
 			status, content = modules_manager.modules[module_name].obj.web_entrypoint(public, get, post)
 			public['client_ip'] = None
-			os.chdir(base_directory)
+			os.chdir(public['base_directory'])
 			return_html(request_handler, status, content)
 		else:
 			msg = 'Module "{}" does not have web interface'.format(module_name)
@@ -236,7 +231,7 @@ class request_handler(BaseHTTPRequestHandler):
 	def check_auth(self):
 		if self.read_cookie('session') in public['sessions']:
 			session_token = self.read_cookie('session')
-			if public['sessions'][session_token]['timestamp'] > (time.time() - settings['session_timeout']):
+			if public['sessions'][session_token]['timestamp'] > (time.time() - public['session_timeout']):
 				return True
 			else:
 				del public['sessions'][session_token]

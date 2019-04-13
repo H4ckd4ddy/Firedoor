@@ -1,6 +1,5 @@
 import sys
 import os
-from firedoor import base_directory
 
 class module:
 
@@ -37,4 +36,4 @@ class modules_manager:
 			if hasattr(cls.modules[module_name].obj, 'startup_entrypoint'):
 				os.chdir(cls.modules[module_name].path)
 				cls.modules[module_name].obj.startup_entrypoint(public)
-				os.chdir(base_directory)
+				os.chdir(public['base_directory'])
