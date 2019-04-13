@@ -50,11 +50,15 @@ def install():
 		os.mkdir(public['config_directory'])
 	if not os.path.exists(public['config_directory']+'database.json'):
 		copyfile('default_database.json', public['config_directory']+'database.json')
+	initialisation()
+	modules_manager.install_modules(public)
 	
 def uninstall():
-	if os.path.isdir(public['config_directory']):
-		shutil.rmtree(public['config_directory'])
-	print('Firedoor successfully uninstalled !')
+	if confirm_uninstall():
+		modules_manager.uninstall_modules(public)
+		if os.path.isdir(public['config_directory']):
+			shutil.rmtree(public['config_directory'])
+		print('Firedoor successfully uninstalled !')
 
 def confirm_uninstall():
 	choice = ''
@@ -64,32 +68,7 @@ def confirm_uninstall():
 		return True
 	else:
 		print('/!\\ Uninstallation aborted /!\\')
-	
-def run_cli_module(module_name, args):
-	if module_name == 'install':
-		for module_name in modules_manager.modules:
-			if hasattr(modules_manager.modules[module_name].obj, 'install_entrypoint'):
-				os.chdir(modules_manager.modules[module_name].path)
-				modules_manager.modules[module_name].obj.install_entrypoint(public)
-				os.chdir(public['base_directory'])
-	elif module_name == 'uninstall':
-		if confirm_uninstall():
-			for module_name in modules_manager.modules:
-				if hasattr(modules_manager.modules[module_name].obj, 'uninstall_entrypoint'):
-					os.chdir(modules_manager.modules[module_name].path)
-					modules_manager.modules[module_name].obj.uninstall_entrypoint(public)
-					os.chdir(public['base_directory'])
-			uninstall()
-	elif module_name in modules_manager.modules:
-		if hasattr(modules_manager.modules[module_name].obj, 'cli_entrypoint'):
-			os.chdir(modules_manager.modules[module_name].path)
-			modules_manager.modules[module_name].obj.cli_entrypoint(public, args)
-			os.chdir(public['base_directory'])
-		else:
-			print('Module "{}" does not have cli interface'.format(module_name))
-	else:
-		print('Module "{}" does no exist'.format(module_name))
-	
+
 def run_web_module(request_handler, module_name, get, post):
 	if module_name in modules_manager.modules:
 		if hasattr(modules_manager.modules[module_name].obj, 'web_entrypoint'):
@@ -284,7 +263,10 @@ def main():
 			print('Firedoor is not correctly installed')
 			exit()
 	if len(sys.argv) > 1:
-		run_cli_module(sys.argv[1], sys.argv[2:])
+		if sys.argv[1] == 'uninstall':
+			uninstall()
+		elif sys.argv[1] != 'install':
+			modules_manager.run_cli_module(public, sys.argv[1], sys.argv[2:])
 	else:
 		modules_manager.startup_modules(public)
 		start_server()
