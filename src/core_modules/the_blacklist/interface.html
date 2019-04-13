@@ -1,0 +1,353 @@
+<html>
+	<head>
+		<title>{{title}}</title>
+		<style>
+		body {
+			text-align: center;
+			background: black;
+			font-family: arial;
+		}
+		
+		a {
+			text-decoration: none;
+		}
+		
+		.cache {
+			display: none;
+		}
+		
+		#title {
+			text-align: center;
+			color: white;
+			font-weight: bold;
+			font-size: 30px;
+		}
+		
+		#return {
+			position: fixed;
+			top: 5px;
+			left: 5px;
+			text-decoration: none;
+			color: white;
+			font-size: 40px;
+			font-weight: bold;
+		}
+		
+		#server {
+			color: white;
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			font-size: 20px;
+		}
+		
+		#page {
+			width: 90%;
+			margin-top: 75px;
+		}
+		
+		.ip, .fact {
+			width: 700px;
+			height: 50px;
+			background: #4f4f4f;
+			padding: 5px;
+			border-radius: 5px;
+			margin: 10px;
+			display: inline-block;
+			position: relative;
+		}
+		
+		.blocked {
+			background: #db3333;
+		}
+		
+		.ip .addr {
+			font-weight: bold;
+			position: absolute;
+			font-size: 20px;
+			top: 20px;
+			left: 20px;
+		}
+		
+		.ip .score {
+			font-weight: bold;
+			position: absolute;
+			font-size: 20px;
+			top: 7px;
+			width: 100%;
+			text-align: center;
+		}
+		
+		.ip .status {
+			font-weight: bold;
+			position: absolute;
+			font-size: 20px;
+			bottom: 7px;
+			width: 100%;
+			text-align: center;
+		}
+		
+		.icon {
+			position: absolute;
+			font-size: 20px;
+			top: 20px;
+			right: 20px;
+		}
+		
+		.fact .time {
+			font-weight: bold;
+			position: absolute;
+			font-size: 20px;
+			top: 20px;
+			left: 20px;
+		}
+		
+		.fact .fact_score {
+			font-weight: bold;
+			position: absolute;
+			font-size: 20px;
+			top: 20px;
+			right: 20px;
+		}
+		
+		.fact .comment {
+			position: absolute;
+			font-size: 20px;
+			bottom: 20px;
+			width: 100%;
+			text-align: center;
+		}
+		
+		#info {
+			position: fixed;
+			bottom: 10px;
+			right: 10px;
+			font-size: 18px;
+			color: red;
+			padding: 5px;
+			background: #4f4f4f;
+			border-radius: 3px;
+			opacity: 0;
+			transition: opacity 1s;
+		}
+		</style>
+	</head>
+	<script>
+		document.addEventListener("DOMContentLoaded", function(event) {
+			get_ip();
+			window.setInterval(get_ip, 10000);
+		});
+		
+		function get_ip(){
+			
+			var page = document.getElementById("blacklist");
+			
+			var xhr = null; 
+			if(window.XMLHttpRequest){ // Firefox et autres
+				xhr = new XMLHttpRequest(); 
+			}else if(window.ActiveXObject){ // Internet Explorer 
+				try {
+					xhr = new ActiveXObject('Msxml2.XMLHTTP');
+				} catch (e) {
+					xhr = new ActiveXObject('Microsoft.XMLHTTP');
+				}
+			}else{
+				alert('Votre navigateur ne supporte pas les objets XMLHTTPRequest...'); 
+				xhr = false; 
+			}
+			
+			xhr.onreadystatechange = function(){
+					
+				if( xhr.readyState < 4 ){
+					
+					//loading
+					
+				}else if(xhr.readyState == 4 && xhr.status == 200){
+					
+					var data = JSON.parse(xhr.responseText);
+					page.innerHTML = "";
+					for (var ip in data){
+						var ip_div = document.createElement("div");
+						ip_div.className = "ip "+data[ip]["status"];
+						(function (ip) {
+							ip_div.addEventListener("click", function(){
+								get_facts(ip);
+							});
+						})(data[ip]["addr"]);
+						
+						var addr_div = document.createElement("div");
+						addr_div.className = "addr";
+						addr_div.innerHTML = "IP : "+data[ip]["addr"];
+						ip_div.appendChild(addr_div);
+						
+						var score_div = document.createElement("div");
+						score_div.className = "score";
+						score_div.innerHTML = "Score : "+data[ip]["score"];
+						ip_div.appendChild(score_div);
+						
+						var status_div = document.createElement("div");
+						status_div.className = "status";
+						status_div.innerHTML = data[ip]["status"];
+						ip_div.appendChild(status_div);
+						
+						if(data[ip]["status"] == "blocked"){
+							var remove_icon = document.createElement("div");
+							remove_icon.className = "icon"
+							remove_icon.innerHTML = "X";
+							(function (ip) {
+								remove_icon.addEventListener("click", function(){
+									action("remove", ip);
+								});
+							})(data[ip]["addr"]);
+							ip_div.appendChild(remove_icon);
+						}else{
+							var block_icon = document.createElement("div");
+							block_icon.className = "icon"
+							block_icon.innerHTML = "🛑";
+							(function (ip) {
+								block_icon.addEventListener("click", function(){
+									action("block", ip);
+								});
+							})(data[ip]["addr"]);
+							ip_div.appendChild(block_icon);
+						}
+						
+						page.appendChild(ip_div);
+					}
+					
+				}else{
+					info("Server unreachable", true)
+				}
+				
+			}
+			
+			xhr.open('GET', 'the_blacklist/ip/', true);
+			xhr.send(null);
+			
+		}
+		
+		function action(type, ip){
+			
+			var xhr = null; 
+			if(window.XMLHttpRequest){ // Firefox et autres
+				xhr = new XMLHttpRequest(); 
+			}else if(window.ActiveXObject){ // Internet Explorer 
+				try {
+					xhr = new ActiveXObject('Msxml2.XMLHTTP');
+				} catch (e) {
+					xhr = new ActiveXObject('Microsoft.XMLHTTP');
+				}
+			}else{
+				alert('Votre navigateur ne supporte pas les objets XMLHTTPRequest...'); 
+				xhr = false; 
+			}
+			
+			xhr.onreadystatechange = function(){
+					
+				if( xhr.readyState < 4 ){
+					
+					//loading
+					
+				}else if(xhr.readyState == 4 && xhr.status == 200){
+					
+					var data = JSON.parse(xhr.responseText);
+					var is_error = data["status"] == "ok" ? false : true;
+					info(data["msg"], is_error);
+					get_ip();
+					
+				}else{
+					info("Server unreachable", true)
+				}
+				
+			}
+			
+			xhr.open('GET', 'the_blacklist/ip/'+ip+'/'+type, true);
+			xhr.send(null);
+		}
+		
+		function get_facts(ip){
+			
+			var page = document.getElementById("blacklist");
+			
+			var xhr = null; 
+			if(window.XMLHttpRequest){ // Firefox et autres
+				xhr = new XMLHttpRequest(); 
+			}else if(window.ActiveXObject){ // Internet Explorer 
+				try {
+					xhr = new ActiveXObject('Msxml2.XMLHTTP');
+				} catch (e) {
+					xhr = new ActiveXObject('Microsoft.XMLHTTP');
+				}
+			}else{
+				alert('Votre navigateur ne supporte pas les objets XMLHTTPRequest...'); 
+				xhr = false; 
+			}
+			
+			xhr.onreadystatechange = function(){
+					
+				if( xhr.readyState < 4 ){
+					
+					//loading
+					
+				}else if(xhr.readyState == 4 && xhr.status == 200){
+					
+					var data = JSON.parse(xhr.responseText);
+					page.innerHTML = "";
+					for (var fact in data){
+						var fact_div = document.createElement("div");
+						fact_div.className = "fact";
+						
+						var time_div = document.createElement("div");
+						time_div.className = "time";
+						var date = new Date(data[fact]["timestamp"] * 1000)
+						time_div.innerHTML = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes();
+						fact_div.appendChild(time_div);
+						
+						var score_div = document.createElement("div");
+						score_div.className = "fact_score";
+						score_div.innerHTML = "Score : "+data[fact]["score"];
+						fact_div.appendChild(score_div);
+						
+						var comment_div = document.createElement("div");
+						comment_div.className = "status";
+						comment_div.innerHTML = data[fact]["comment"];
+						fact_div.appendChild(comment_div);
+						
+						page.appendChild(fact_div);
+					}
+					
+				}else{
+					info("Server unreachable", true)
+				}
+				
+			}
+			
+			xhr.open('GET', 'the_blacklist/ip/'+ip, true);
+			xhr.send(null);
+		}
+		
+		function info(msg, is_error){
+			var div = document.getElementById("info");
+			msg = is_error ? "⚠ "+msg : msg;
+			div.innerHTML = msg;
+			var color = is_error ? "red" : "green";
+			div.style.color = color;
+			div.style.opacity = 1;
+			setTimeout(function(){
+				div.style.opacity = 0;
+			}, 3000);
+		}
+	</script>
+	<body>
+		<center>
+			<div id="title">Blacklist</div>
+			<a id="return" href="/"><</a>
+			<div id="server">Server : {{server_name}}</div>
+			<div id="page">
+				<div id="blacklist">
+				</div>
+				<div id="info"></div>
+			</div>
+		</center>
+	</body>
+</html>

@@ -1,0 +1,90 @@
+<html>
+	<head>
+		<title>{{title}}</title>
+		<style>
+		body {
+			text-align: center;
+			background: black;
+			font-family: arial;
+		}
+		
+		a {
+			text-decoration: none;
+		}
+		
+		.cache {
+			display: none;
+		}
+		
+		#title {
+			text-align: center;
+			color: white;
+			font-weight: bold;
+			font-size: 30px;
+		}
+		
+		#return {
+			position: fixed;
+			top: 5px;
+			left: 5px;
+			text-decoration: none;
+			color: white;
+			font-size: 40px;
+			font-weight: bold;
+		}
+		
+		#server {
+			color: white;
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			font-size: 20px;
+		}
+		
+		#page {
+			width: 90%;
+			margin-top: 10%;
+		}
+		
+		#info {
+			position: fixed;
+			bottom: 10px;
+			right: 10px;
+			font-size: 18px;
+			color: red;
+			padding: 5px;
+			background: #4f4f4f;
+			border-radius: 3px;
+			opacity: 0;
+			transition: opacity 1s;
+		}
+		
+		#activation_switch {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			padding: 20px;
+			font-weight: bold;
+			cursor: pointer;
+		}
+		
+		.on {
+			color: green;
+		}
+		
+		.off {
+			color: red;
+		}
+		</style>
+	</head>
+	<body>
+		<center>
+			<div id="title">Web Application Firewall</div>
+			<a id="return" href="/"><</a>
+			<div id="server">Server : {{server_name}}</div>
+			<div id="page">
+				<a id="activation_switch" class="{{waf_state}}" href="/WAF/{{waf_action}}">WAF state : {{waf_state}}</a>
+			</div>
+		</center>
+	</body>
+</html>

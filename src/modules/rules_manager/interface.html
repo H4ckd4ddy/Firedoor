@@ -1,0 +1,106 @@
+<html>
+	<head>
+		<title>{{title}}</title>
+		<style>
+		body {
+			text-align: center;
+			background: black;
+			font-family: arial;
+		}
+		
+		a {
+			text-decoration: none;
+		}
+		
+		.cache {
+			display: none;
+		}
+		
+		#title {
+			text-align: center;
+			color: white;
+			font-weight: bold;
+			font-size: 30px;
+		}
+		
+		#return {
+			position: fixed;
+			top: 5px;
+			left: 5px;
+			text-decoration: none;
+			color: white;
+			font-size: 40px;
+			font-weight: bold;
+		}
+		
+		#server {
+			color: white;
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			font-size: 20px;
+		}
+		
+		#page {
+			width: 90%;
+			margin-top: 10%;
+		}
+		
+		input, button, textarea {
+			width: 350px;
+			background: #4f4f4f;
+			border: none;
+			font-size: 25px;
+			color: white;
+			padding: 5px;
+			border-radius: 5px;
+			outline: none;
+		}
+		
+		button {
+			margin-top: 20px;
+			background: #3b3b3b;
+		}
+		
+		td {
+			padding: 10px;
+		}
+		
+		table {
+			 border-collapse: collapse;
+			 font-size: 15px;
+			 box-shadow: 1px 1px 10px #555;
+			 margin-bottom: 150px;
+		}
+		
+		table tbody:nth-child(2n+1) {
+			background: #d1d1d1;
+		}
+		
+		table tbody:first-child {
+			color: white;
+			background: black;
+		}
+		
+		textarea {
+			width: 70%;
+			height: 50%;
+			font-size: 15px;
+		}
+		</style>
+	</head>
+	<body>
+		<center>
+			<div id="title">Static rules</div>
+			<a id="return" href="/"><</a>
+			<div id="server">Server : {{server_name}}</div>
+			<div id="page">
+				<form method="POST">
+					<textarea name="rules" spellcheck="false">{{static_rules}}</textarea>
+					<br/><br/>
+					<button type="submit">Save</button>
+				</form>
+			</div>
+		</center>
+	</body>
+</html>

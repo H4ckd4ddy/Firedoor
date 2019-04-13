@@ -1,0 +1,10 @@
+{
+	"server": "Default",
+	"web_interface_port": 81,
+	"password": "1891efb148f4946b5a180e5f3b8e29b936f3b626330d7f74732790e4cd4fba36dd213340dd8082b63ea91bb9b8ea8a96255131e3734fb6e4106ffbc56800ef19",
+	"timestamp": 0,
+	"TLS": false,
+	"cert_path": "TLS/cert.pem",
+	"key_path": "TLS/key.pem",
+	"IP":[]
+}

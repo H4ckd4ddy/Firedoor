@@ -1,0 +1,5 @@
+scapy
+signals
+netifaces
+docker
+psutil
