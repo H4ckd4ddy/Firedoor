@@ -28,7 +28,6 @@ version = 4.0
 
 # SETTINGS BEGIN
 settings = {}
-settings['port'] = 81
 settings['logs_path'] = '/var/log'
 settings['config_directory'] = '/etc/firedoor/'
 settings['session_timeout'] = 1800
@@ -254,7 +253,7 @@ class request_handler(BaseHTTPRequestHandler):
 
 
 
-def run_on(port):
+def run_on():
 	print('\n')
 	print('/-----------------------------------\\')
 	print('|  Starting Firedoor on port {}  |'.format(str(public['database'].get('web_interface_port')).rjust(5, ' ')))
@@ -271,7 +270,7 @@ def run_on(port):
 	httpd.serve_forever()
 	
 def start_server():
-	server = Thread(target=run_on, args=[settings['port']])
+	server = Thread(target=run_on)
 	server.daemon = True
 	server.start()
 	signal.pause()
