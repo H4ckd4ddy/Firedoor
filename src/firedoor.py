@@ -74,42 +74,9 @@ def confirm_uninstall():
 
 
 
-def return_html(request_handler, status, content, cookie_to_set=None):
-	if not isinstance(status, int):
-		status = 500
-	request_handler.send_response(status)
-	request_handler.send_header('Content-type', 'text/html; charset=UTF-8')
-	if cookie_to_set != None:
-		cookie_data = cookie_to_set.split('=')
-		cookie = http.cookies.SimpleCookie()
-		cookie[cookie_data[0]] = cookie_data[1]
-		request_handler.send_header("Set-Cookie", cookie.output(header='', sep=''))
-	request_handler.end_headers()
-	content = content.replace('{{title}}', 'Firedoor v4.0 - {}'.format(public['database'].get('server')))
-	content = content.replace('{{server_name}}', public['database'].get('server'))
-	content = content.replace('{{firedoor_version}}', 'v'+str(version))
-	request_handler.wfile.write(content.encode('utf-8'))
-	return
 
-def return_not_found(request_handler, msg):
-	html = '<meta http-equiv="refresh" content="2;URL=/">{}'.format(msg)
-	return_html(request_handler, 404, html)
 
-def return_homepage():
-	with open('html/home.html', 'r', encoding='utf-8') as homepage:
-		modules_list = ''
-		for module_name in modules_manager.modules:
-			if hasattr(modules_manager.modules[module_name].obj, 'web_entrypoint'):
-				if os.path.exists(modules_manager.modules[module_name].path+'/icon.png'):
-					modules_list += '<a href="{}" title="{}"><div style="background: url(\'icon/{}\');background-size: cover;" class="icon"></div></a>'.format(module_name, module_name, module_name)
-		html = homepage.read()
-		html = html.replace('{{modules}}', modules_list)
-		return html
-	
-def return_loginpage():
-	with open('html/login.html', 'r', encoding='utf-8') as loginpage:
-		html = loginpage.read()
-		return html
+
 
 
 
@@ -148,16 +115,16 @@ class request_handler(BaseHTTPRequestHandler):
 					return_module_image(self, get[1])
 				if get[0] == 'logout' and len(get) == 1:
 					public['sessions'][self.read_cookie('session')]['timestamp'] = 0
-					return_html(self, 200, '<script>document.location = "/";</script>')
+					self.return_html(self, 200, '<script>document.location = "/";</script>')
 				else:
 					status, content = modules_manager.run_web_module(public, self, get[0], get[1:], {})
-					return_html(self, status, content)
+					self.return_html(self, status, content)
 			else:
-				return_html(self, 200, return_homepage())
+				self.return_html(self, 200, self.return_homepage())
 		elif len(get) > 0:
-			return_html(self, 403, '<script>document.location = "/";</script>')
+			self.return_html(self, 403, '<script>document.location = "/";</script>')
 		else:
-			return_html(self, 200, return_loginpage())
+			self.return_html(self, 200, self.return_loginpage())
 	
 	def parse_POST(self):
 		content_len = int(self.headers['content-length'])
@@ -183,16 +150,16 @@ class request_handler(BaseHTTPRequestHandler):
 						public['sessions'][token] = {}
 						public['sessions'][token]['timestamp'] = time.time()
 						session_cookie = 'session={}'.format(token)
-						return_html(self, 200, '<script>location.reload();</script>', session_cookie)
+						self.return_html(self, 200, '<script>location.reload();</script>', session_cookie)
 					else:
-						return_html(self, 200, return_loginpage().replace('<!---->', 'Access denied'))
+						self.return_html(self, 200, self.return_loginpage().replace('<!---->', 'Access denied'))
 						return
-			return_html(self, 200, return_loginpage())
+			self.return_html(self, 200, self.return_loginpage())
 		elif self.check_auth():
 			status, content = modules_manager.run_web_module(public, self, parameters[0], parameters[1:], post)
-			return_html(self, status, content)
+			self.return_html(self, status, content)
 		else:
-			return_html(self, 200, 'Access denied')
+			self.return_html(self, 200, 'Access denied')
 
 	def check_auth(self):
 		if self.read_cookie('session') in public['sessions']:
@@ -202,12 +169,49 @@ class request_handler(BaseHTTPRequestHandler):
 			else:
 				del public['sessions'][session_token]
 		return False
-	
+
 	def read_cookie(self, cookie_name):
 		cookies = http.cookies.SimpleCookie(self.headers.get('Cookie'))
 		if cookie_name in cookies:
 			return cookies[cookie_name].value
 		return None
+
+	def return_html(self, request_handler, status, content, cookie_to_set=None):
+		if not isinstance(status, int):
+			status = 500
+		request_handler.send_response(status)
+		request_handler.send_header('Content-type', 'text/html; charset=UTF-8')
+		if cookie_to_set != None:
+			cookie_data = cookie_to_set.split('=')
+			cookie = http.cookies.SimpleCookie()
+			cookie[cookie_data[0]] = cookie_data[1]
+			request_handler.send_header("Set-Cookie", cookie.output(header='', sep=''))
+		request_handler.end_headers()
+		content = content.replace('{{title}}', 'Firedoor v4.0 - {}'.format(public['database'].get('server')))
+		content = content.replace('{{server_name}}', public['database'].get('server'))
+		content = content.replace('{{firedoor_version}}', 'v'+str(version))
+		request_handler.wfile.write(content.encode('utf-8'))
+		return
+
+	def return_not_found(self, request_handler, msg):
+		html = '<meta http-equiv="refresh" content="2;URL=/">{}'.format(msg)
+		self.return_html(request_handler, 404, html)
+	
+	def return_homepage(self):
+		with open('html/home.html', 'r', encoding='utf-8') as homepage:
+			modules_list = ''
+			for module_name in modules_manager.modules:
+				if hasattr(modules_manager.modules[module_name].obj, 'web_entrypoint'):
+					if os.path.exists(modules_manager.modules[module_name].path+'/icon.png'):
+						modules_list += '<a href="{}" title="{}"><div style="background: url(\'icon/{}\');background-size: cover;" class="icon"></div></a>'.format(module_name, module_name, module_name)
+			html = homepage.read()
+			html = html.replace('{{modules}}', modules_list)
+			return html
+		
+	def return_loginpage(self):
+		with open('html/login.html', 'r', encoding='utf-8') as loginpage:
+			html = loginpage.read()
+			return html
 
 
 
