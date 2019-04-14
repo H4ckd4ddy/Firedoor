@@ -5,7 +5,7 @@ import urllib.parse
 class settings():
 	
 	@staticmethod
-	def web_entrypoint(database, get, post):
+	def web_entrypoint(database, client_ip, get, post):
 		if len(post) > 0:
 			if 'action' in post:
 				if post['action'] == 'change_settings':

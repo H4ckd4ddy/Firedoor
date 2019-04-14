@@ -19,7 +19,7 @@ import os
 class SSHTTP():
 	
 	@staticmethod
-	def web_entrypoint(database, get, post):
+	def web_entrypoint(database, client_ip, get, post):
 		if len(post) > 0:
 			if 'command' in post:
 				# ----- PROBLEM BEGIN -----

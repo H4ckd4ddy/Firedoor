@@ -30,7 +30,7 @@ class monitoring():
 			monitoring.start(database, 60)
 	
 	@staticmethod
-	def web_entrypoint(database, get, post):
+	def web_entrypoint(database, client_ip, get, post):
 		if len(get) == 1 and 'start' in get:
 			monitoring.start(database, 60)
 		elif len(get) == 1 and 'stop' in get:

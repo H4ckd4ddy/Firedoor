@@ -8,5 +8,6 @@
 	"TLS": false,
 	"cert_path": "TLS/cert.pem",
 	"key_path": "TLS/key.pem",
-	"IP":[]
+	"IP":[],
+	"firedoor_version": 4.0
 }

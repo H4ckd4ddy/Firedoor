@@ -69,7 +69,7 @@ class the_blacklist():
 		database.report_ip = the_blacklist.report_ip
 	
 	@staticmethod
-	def web_entrypoint(database, get, post):
+	def web_entrypoint(database, client_ip, get, post):
 		if len(get) > 0:
 			if get[0] == 'ip':
 				if len(get) == 3:

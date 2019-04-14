@@ -6,7 +6,7 @@ class docker_manager():
 	data = {}
 	
 	@staticmethod
-	def web_entrypoint(database, get, post):
+	def web_entrypoint(database, client_ip, get, post):
 		if len(get) > 0:
 			if get[0] == 'containers':
 				if len(get) == 3:

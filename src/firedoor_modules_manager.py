@@ -64,19 +64,15 @@ class modules_manager:
 		if module_name in cls.modules:
 			if hasattr(cls.modules[module_name].obj, 'web_entrypoint'):
 				os.chdir(cls.modules[module_name].path)
-				#public['client_ip'] = request_handler.client_address[0]
-				status, content = cls.modules[module_name].obj.web_entrypoint(database, get, post)
-				#public['client_ip'] = None
+				client_ip = request_handler.client_address[0]
+				status, content = cls.modules[module_name].obj.web_entrypoint(database, client_ip, get, post)
 				os.chdir(database.get('base_directory'))
-				#return_html(request_handler, status, content)
 				return status, content
 			else:
 				msg = 'Module "{}" does not have web interface'.format(module_name)
-				#return_html(request_handler, 404, msg)
 				return 404, msg
 		else:
 			msg = 'Module "{}" does no exist'.format(module_name)
-			#return_html(request_handler, 404, msg)
 			return 404, msg
 
 	@classmethod

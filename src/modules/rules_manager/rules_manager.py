@@ -3,7 +3,7 @@ from urllib.parse import unquote
 class rules_manager():
 	
 	@staticmethod
-	def web_entrypoint(database, get, post):
+	def web_entrypoint(database, client_ip, get, post):
 		if 'rules' in post:
 			with open(database.get('config_directory')+'static_rules.conf', 'w') as rules_file:
 				rules_file.write(unquote(unquote(post['rules'])).replace('+', ' '))

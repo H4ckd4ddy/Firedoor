@@ -88,7 +88,7 @@ class WAF():
 			pass
 	
 	@staticmethod
-	def web_entrypoint(database, get, post):
+	def web_entrypoint(database, client_ip, get, post):
 		if len(get) == 1 and 'start' in get:
 			WAF.start(database)
 		elif len(get) == 1 and 'stop' in get:

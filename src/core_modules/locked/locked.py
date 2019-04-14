@@ -31,34 +31,29 @@ class locked():
 		print('tmp')#locked.lock(database)
 	
 	@staticmethod
-	def web_entrypoint(database, get, post):
+	def web_entrypoint(database, client_ip, get, post):
 		if len(get) > 0:
 			if get[0] == 'lock':
 				locked.lock(database)
 				return 200, '<script>document.location = "/"</script>'
-		locked.unlock(database)
+		locked.unlock(database, client_ip)
 		return locked.return_interface(database)
 	
 	@staticmethod
-	def unlock(database):
+	def unlock(database, client_ip):
 		print('Apply iptables rules')
 		locked.flush_rules(database)
 		locked.define_all_policies(database, 'DROP')
 		locked.apply_rules_from(database, 'essential_rules.conf')
 		locked.apply_rules_from(database, 'static_rules.conf')
-		locked.apply_rules_from(database, 'management_rules.conf')
+		locked.apply_rules_from(database, 'management_rules.conf', client_ip)
 		locked.start_timer(database)
 	
 	@staticmethod
-	def apply_rules_from(database, file_name):
+	def apply_rules_from(database, file_name, client_ip=None):
 		file_path = database.get('config_directory')+file_name
 		if os.path.exists(file_path):
 			iptables = pyptables.Iptables()
-			#if 'client_ip' in public:
-			#	client_ip = public['client_ip']
-			#else:
-			client_ip = None
-			#	client_ip = None
 			iptables.import_from(file_path, client_ip)
 	
 	@staticmethod

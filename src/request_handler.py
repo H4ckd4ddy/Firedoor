@@ -100,7 +100,7 @@ class request_handler(BaseHTTPRequestHandler):
 		self.end_headers()
 		content = content.replace('{{title}}', 'Firedoor v4.0 - {}'.format(database.get('server')))
 		content = content.replace('{{server_name}}', database.get('server'))
-		#content = content.replace('{{firedoor_version}}', 'v'+str(version))
+		content = content.replace('{{firedoor_version}}', 'v'+str(database.get('firedoor_version')))
 		self.wfile.write(content.encode('utf-8'))
 		return
 
