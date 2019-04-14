@@ -65,12 +65,12 @@ class the_blacklist():
 	ip_list = {}
 	
 	@staticmethod
-	def startup_entrypoint(public):
-		public['report_ip'] = the_blacklist.report_ip
+	def startup_entrypoint(database):
+		#public['report_ip'] = the_blacklist.report_ip
 		print('ok')
 	
 	@staticmethod
-	def web_entrypoint(public, get, post):
+	def web_entrypoint(database, get, post):
 		if len(get) > 0:
 			if get[0] == 'ip':
 				if len(get) == 3:
@@ -79,7 +79,7 @@ class the_blacklist():
 					if get[1] in the_blacklist.ip_list:
 						return 200, json.dumps(the_blacklist.ip_list[get[1]].get_facts())
 				return 200, json.dumps(the_blacklist.get_ip_list())
-		return the_blacklist.return_interface(public)
+		return the_blacklist.return_interface(database)
 	
 	@staticmethod
 	def manage_ip(ip, action):
@@ -114,7 +114,7 @@ class the_blacklist():
 			the_blacklist.ip_list[addr].block()
 	
 	@staticmethod
-	def return_interface(public):
+	def return_interface(database):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
 			return 200, html

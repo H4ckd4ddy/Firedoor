@@ -2,28 +2,36 @@ import os
 import json
 
 class database:
+	
 	file = None
 	database = None
-	def __init__(self, file):
+	
+	@classmethod
+	def init(cls, file):
 		if os.path.isfile(file):
-			self.file = file
-			self.import_from_file()
+			cls.file = file
+			cls.import_from_file()
 	
-	def import_from_file(self):
-		with open(self.file) as json_file:
-			self.database = json.load(json_file)
+	@classmethod
+	def import_from_file(cls):
+		with open(cls.file) as json_file:
+			cls.database = json.load(json_file)
 	
-	def export_to_file(self):
-		with open(self.file, 'w') as json_file:
-			json.dump(self.database, json_file, indent=4)
+	@classmethod
+	def export_to_file(cls):
+		with open(cls.file, 'w') as json_file:
+			json.dump(cls.database, json_file, indent=4)
 	
-	def get(self, key):
-		return self.database[key]
+	@classmethod
+	def get(cls, key):
+		return cls.database[key]
 	
-	def set(self, key, value):
-		self.database[key] = value
-		self.export_to_file()
+	@classmethod
+	def set(cls, key, value):
+		cls.database[key] = value
+		cls.export_to_file()
 	
-	def rem(self, key):
-		del self.database[key]
-		self.export_to_file()
+	@classmethod
+	def rem(cls, key):
+		del cls.database[key]
+		cls.export_to_file()
