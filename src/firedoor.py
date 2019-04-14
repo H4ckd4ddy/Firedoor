@@ -69,23 +69,6 @@ def confirm_uninstall():
 	else:
 		print('/!\\ Uninstallation aborted /!\\')
 
-def run_web_module(request_handler, module_name, get, post):
-	if module_name in modules_manager.modules:
-		if hasattr(modules_manager.modules[module_name].obj, 'web_entrypoint'):
-			os.chdir(modules_manager.modules[module_name].path)
-			public['client_ip'] = request_handler.client_address[0]
-			status, content = modules_manager.modules[module_name].obj.web_entrypoint(public, get, post)
-			public['client_ip'] = None
-			os.chdir(public['base_directory'])
-			return_html(request_handler, status, content)
-		else:
-			msg = 'Module "{}" does not have web interface'.format(module_name)
-			return_html(request_handler, 404, msg)
-	else:
-		msg = 'Module "{}" does no exist'.format(module_name)
-		return_html(request_handler, 404, msg)
-
-
 
 
 
@@ -127,7 +110,9 @@ def return_loginpage():
 	with open('html/login.html', 'r', encoding='utf-8') as loginpage:
 		html = loginpage.read()
 		return html
-	
+
+
+
 def return_module_image(request_handler, module_name):
 	if module_name in modules_manager.modules:
 		if hasattr(modules_manager.modules[module_name].obj, 'web_entrypoint'):
@@ -165,7 +150,8 @@ class request_handler(BaseHTTPRequestHandler):
 					public['sessions'][self.read_cookie('session')]['timestamp'] = 0
 					return_html(self, 200, '<script>document.location = "/";</script>')
 				else:
-					run_web_module(self, get[0], get[1:], {})
+					status, content = modules_manager.run_web_module(public, self, get[0], get[1:], {})
+					return_html(self, status, content)
 			else:
 				return_html(self, 200, return_homepage())
 		elif len(get) > 0:
@@ -203,7 +189,8 @@ class request_handler(BaseHTTPRequestHandler):
 						return
 			return_html(self, 200, return_loginpage())
 		elif self.check_auth():
-			run_web_module(self, parameters[0], parameters[1:], post)
+			status, content = modules_manager.run_web_module(public, self, parameters[0], parameters[1:], post)
+			return_html(self, status, content)
 		else:
 			return_html(self, 200, 'Access denied')
 

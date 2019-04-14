@@ -59,6 +59,26 @@ class modules_manager:
 			print('Module "{}" does no exist'.format(module_name))
 
 	@classmethod
+	def run_web_module(cls, public, request_handler, module_name, get, post):
+		if module_name in cls.modules:
+			if hasattr(cls.modules[module_name].obj, 'web_entrypoint'):
+				os.chdir(cls.modules[module_name].path)
+				public['client_ip'] = request_handler.client_address[0]
+				status, content = cls.modules[module_name].obj.web_entrypoint(public, get, post)
+				public['client_ip'] = None
+				os.chdir(public['base_directory'])
+				#return_html(request_handler, status, content)
+				return status, content
+			else:
+				msg = 'Module "{}" does not have web interface'.format(module_name)
+				#return_html(request_handler, 404, msg)
+				return 404, msg
+		else:
+			msg = 'Module "{}" does no exist'.format(module_name)
+			#return_html(request_handler, 404, msg)
+			return 404, msg
+
+	@classmethod
 	def startup_modules(cls, public):
 		for module_name in cls.modules:
 			if hasattr(cls.modules[module_name].obj, 'startup_entrypoint'):
