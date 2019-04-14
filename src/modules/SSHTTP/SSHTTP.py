@@ -19,7 +19,7 @@ import os
 class SSHTTP():
 	
 	@staticmethod
-	def web_entrypoint(public, get, post):
+	def web_entrypoint(database, get, post):
 		if len(post) > 0:
 			if 'command' in post:
 				# ----- PROBLEM BEGIN -----
@@ -28,7 +28,7 @@ class SSHTTP():
 				return 200, 'ok'
 				# ------ PROBLEM END ------
 		else:
-			return SSHTTP.return_interface(public)
+			return SSHTTP.return_interface(database)
 	
 	@staticmethod
 	def return_command_result(cmd):
@@ -38,7 +38,7 @@ class SSHTTP():
 		return 200, 'html'
 
 	@staticmethod
-	def cli_entrypoint(public, args):
+	def cli_entrypoint(database, args):
 		print(SSHTTP.exec_cmd('echo test'))
 
 	@staticmethod
@@ -49,7 +49,7 @@ class SSHTTP():
 		return result
 	
 	@staticmethod
-	def return_interface(public):
+	def return_interface(database):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
 			return 200, html

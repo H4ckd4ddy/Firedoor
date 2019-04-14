@@ -8,37 +8,37 @@ class WAF():
 	thread = None
 	
 	@staticmethod
-	def install_entrypoint(public):
-		public['database'].set('waf_state', 'off')
+	def install_entrypoint(database):
+		database.set('waf_state', 'off')
 	
 	@staticmethod
-	def uninstall_entrypoint(public):
-		public['database'].rem('waf_state')
+	def uninstall_entrypoint(database):
+		database.rem('waf_state')
 	
 	@staticmethod
-	def startup_entrypoint(public):
-		if public['database'].get('waf_state') == 'on':
-			WAF.start(public)
+	def startup_entrypoint(database):
+		if database.get('waf_state') == 'on':
+			WAF.start(database)
 			print('ok')
 	
 	@staticmethod
-	def start(public):
+	def start(database):
 		WAF.SQLI_pattern = re.compile(r"'\s*(AND|OR|XOR|&&|\|\|)\s*('|[0-9]|`?[a-z\._-]+`?\s*=|[a-z]+\s*\()")
 		WAF.XSS_pattern = re.compile(r"(\b)(on\S+)(\s*)=|javascript|(<\s*)(\/*)script")
-		WAF.thread = Thread(target = WAF.analyser, args=[public])
+		WAF.thread = Thread(target = WAF.analyser, args=[database])
 		WAF.thread.daemon = True
 		WAF.thread.start()
-		public['database'].set('waf_state', 'on')
+		database.set('waf_state', 'on')
 	
 	@staticmethod
-	def stop(public):
+	def stop(database):
 		if WAF.thread != None:
 			WAF.thread = None
-		public['database'].set('waf_state', 'off')
+		database.set('waf_state', 'off')
 	
 	@staticmethod
-	def analyser(public):
-		WAF.public = public
+	def analyser(database):
+		WAF.database = database
 		sniff(prn=WAF.packet_callback, store=0, count=0, stop_filter=WAF.check_state)
 		#sniff(filter='tcp', prn=WAF.packet_callback, store=0, count=0, stop_filter=WAF.check_state)
 	
@@ -70,7 +70,7 @@ class WAF():
 			load = str(payload)
 			data = urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(load))))
 			if WAF.XSS_pattern.search(data):
-				WAF.public['report_ip'](packet[IP].src, 3, 'Cross-site scripting')
+				WAF.database.report_ip(packet[IP].src, 3, 'Cross-site scripting')
 		except:
 			pass
 	
@@ -83,24 +83,24 @@ class WAF():
 			load = str(payload)
 			data = urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(load))))
 			if WAF.SQLI_pattern.search(data):
-				WAF.public['report_ip'](packet[IP].src, 5, 'SQL injection')
+				WAF.database.report_ip(packet[IP].src, 5, 'SQL injection')
 		except:
 			pass
 	
 	@staticmethod
-	def web_entrypoint(public, get, post):
+	def web_entrypoint(database, get, post):
 		if len(get) == 1 and 'start' in get:
-			WAF.start(public)
+			WAF.start(database)
 		elif len(get) == 1 and 'stop' in get:
-			WAF.stop(public)
-		return WAF.return_interface(public)
+			WAF.stop(database)
+		return WAF.return_interface(database)
 	
 	@staticmethod
-	def return_interface(public):
+	def return_interface(database):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
-			html = html.replace('{{waf_state}}', public['database'].get('waf_state'))
-			if public['database'].get('waf_state') == 'on':
+			html = html.replace('{{waf_state}}', database.get('waf_state'))
+			if database.get('waf_state') == 'on':
 				action = 'stop'
 			else:
 				action = 'start'

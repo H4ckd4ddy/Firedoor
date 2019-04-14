@@ -6,19 +6,7 @@ class docker_manager():
 	data = {}
 	
 	@staticmethod
-	def install_entrypoint(public):
-		print('ok')
-	
-	@staticmethod
-	def uninstall_entrypoint(public):
-		print('ok')
-	
-	@staticmethod
-	def startup_entrypoint(public):
-		print('ok')
-	
-	@staticmethod
-	def web_entrypoint(public, get, post):
+	def web_entrypoint(database, get, post):
 		if len(get) > 0:
 			if get[0] == 'containers':
 				if len(get) == 3:
@@ -26,7 +14,7 @@ class docker_manager():
 				else:
 					return 200, json.dumps(docker_manager.get_containers_list())
 		else:
-			return docker_manager.return_interface(public)
+			return docker_manager.return_interface(database)
 	
 	@staticmethod
 	def get_containers_list():
@@ -91,7 +79,7 @@ class docker_manager():
 		return json.dumps(result)
 	
 	@staticmethod
-	def return_interface(public):
+	def return_interface(database):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
 			return 200, html

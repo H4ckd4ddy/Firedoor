@@ -14,54 +14,54 @@ class monitoring():
 	thread = None
 	
 	@staticmethod
-	def install_entrypoint(public):
-		public['database'].set('monitoring_state', 'off')
-		public['database'].set('monitoring_logs_dir', '/var/log/firedoor/')
+	def install_entrypoint(database):
+		database.set('monitoring_state', 'off')
+		database.set('monitoring_logs_dir', '/var/log/firedoor/')
 	
 	@staticmethod
-	def uninstall_entrypoint(public):
-		public['database'].rem('monitoring_state')
-		if os.path.isdir(public['database'].get('monitoring_logs_dir')):
-			shutil.rmtree(public['database'].get('monitoring_logs_dir'))
+	def uninstall_entrypoint(database):
+		database.rem('monitoring_state')
+		if os.path.isdir(database.get('monitoring_logs_dir')):
+			shutil.rmtree(database.get('monitoring_logs_dir'))
 	
 	@staticmethod
-	def startup_entrypoint(public):
-		if public['database'].get('monitoring_state') == 'on':
-			monitoring.start(public, 60)
+	def startup_entrypoint(database):
+		if database.get('monitoring_state') == 'on':
+			monitoring.start(database, 60)
 	
 	@staticmethod
-	def web_entrypoint(public, get, post):
+	def web_entrypoint(database, get, post):
 		if len(get) == 1 and 'start' in get:
-			monitoring.start(public, 60)
+			monitoring.start(database, 60)
 		elif len(get) == 1 and 'stop' in get:
-			monitoring.stop(public)
+			monitoring.stop(database)
 		elif 'logs' in get:
 			if len(get) == 2:
-				return monitoring.return_logs(public, get[1])
+				return monitoring.return_logs(database, get[1])
 			elif len(get) == 3:
-				return monitoring.return_logs(public, get[1], get[2])
-		return monitoring.return_interface(public)
+				return monitoring.return_logs(database, get[1], get[2])
+		return monitoring.return_interface(database)
 	
 	@staticmethod
-	def start(public, interval):
-		monitoring.thread = Thread(target = monitoring.set_interval, args=[public, monitoring.measuring_values, interval])
+	def start(database, interval):
+		monitoring.thread = Thread(target = monitoring.set_interval, args=[database, monitoring.measuring_values, interval])
 		monitoring.thread.daemon = True
 		monitoring.thread.start()
-		public['database'].set('monitoring_state', 'on')
+		database.set('monitoring_state', 'on')
 	
 	@staticmethod
-	def stop(public):
+	def stop(database):
 		if monitoring.thread != None:
 			monitoring.thread.stop = True
 			monitoring.thread = None
-		public['database'].set('monitoring_state', 'off')
+		database.set('monitoring_state', 'off')
 	
 	@staticmethod
-	def measuring_values(public):
-		monitoring.prepare_directory(public)
+	def measuring_values(database):
+		monitoring.prepare_directory(database)
 		measuring_types = ['CPU', 'RAM', 'NET']
 		for measuring_type in measuring_types:
-			monitoring.append_to_logs(public, measuring_type, monitoring.measuring(measuring_type))
+			monitoring.append_to_logs(database, measuring_type, monitoring.measuring(measuring_type))
 	
 	@staticmethod
 	def measuring(measuring_type):
@@ -101,44 +101,44 @@ class monitoring():
 		return values
 	
 	@staticmethod
-	def append_to_logs(public, mesuring_type, values):
+	def append_to_logs(database, mesuring_type, values):
 		date = datetime.datetime.now().strftime('%Y-%m-%d')
 		time = datetime.datetime.now().strftime('%H:%M:%S')
 		value = ' , '.join(values)
-		with open(public['database'].get('monitoring_logs_dir')+date+'/'+mesuring_type+'.log', 'a+') as logs_file:
+		with open(database.get('monitoring_logs_dir')+date+'/'+mesuring_type+'.log', 'a+') as logs_file:
 			logs_file.write('{} {} , {}\n'.format(date, time, value))
 	
 	@staticmethod
-	def prepare_directory(public):
-		if not os.path.isdir(public['database'].get('monitoring_logs_dir')):
-			os.mkdir(public['database'].get('monitoring_logs_dir'))
+	def prepare_directory(database):
+		if not os.path.isdir(database.get('monitoring_logs_dir')):
+			os.mkdir(database.get('monitoring_logs_dir'))
 		date = datetime.datetime.now().strftime('%Y-%m-%d')
-		if not os.path.isdir(public['database'].get('monitoring_logs_dir')+date):
-			os.mkdir(public['database'].get('monitoring_logs_dir')+date)
+		if not os.path.isdir(database.get('monitoring_logs_dir')+date):
+			os.mkdir(database.get('monitoring_logs_dir')+date)
 	
 	@staticmethod
-	def return_logs(public, mesuring_type, date=datetime.datetime.now().strftime('%Y-%m-%d')):
-		if os.path.exists(public['database'].get('monitoring_logs_dir')+date+'/'+mesuring_type+'.log'):
-			with open(public['database'].get('monitoring_logs_dir')+date+'/'+mesuring_type+'.log', 'r') as logs_file:
+	def return_logs(database, mesuring_type, date=datetime.datetime.now().strftime('%Y-%m-%d')):
+		if os.path.exists(database.get('monitoring_logs_dir')+date+'/'+mesuring_type+'.log'):
+			with open(database.get('monitoring_logs_dir')+date+'/'+mesuring_type+'.log', 'r') as logs_file:
 				return 200, logs_file.read()
 		return 404, 'Not found'
 	
 	@staticmethod
-	def generate_date_list(public):
-		if os.path.exists(public['database'].get('monitoring_logs_dir')):
+	def generate_date_list(database):
+		if os.path.exists(database.get('monitoring_logs_dir')):
 			dates = []
-			for date in sorted(os.listdir(public['database'].get('monitoring_logs_dir')), reverse=True):
+			for date in sorted(os.listdir(database.get('monitoring_logs_dir')), reverse=True):
 				dates.append('<option>{}</option>'.format(date))
 			return '\n'.join(dates)
 		return 'no data'
 	
 	@staticmethod
-	def return_interface(public):
+	def return_interface(database):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
-			html = html.replace('{{monitoring_dates}}', monitoring.generate_date_list(public))
-			html = html.replace('{{monitoring_state}}', public['database'].get('monitoring_state'))
-			if public['database'].get('monitoring_state') == 'on':
+			html = html.replace('{{monitoring_dates}}', monitoring.generate_date_list(database))
+			html = html.replace('{{monitoring_state}}', database.get('monitoring_state'))
+			if database.get('monitoring_state') == 'on':
 				action = 'stop'
 			else:
 				action = 'start'
@@ -146,7 +146,7 @@ class monitoring():
 			return 200, html
 	
 	@staticmethod
-	def set_interval(public, func, time):
+	def set_interval(database, func, time):
 		monitoring.thread.stop = False
 		e = threading.Event()
 		while not e.wait(time):
@@ -155,4 +155,4 @@ class monitoring():
 			elif monitoring.thread.stop:
 				exit()
 			else:
-				func(public)
+				func(database)
