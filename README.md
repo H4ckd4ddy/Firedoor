@@ -7,6 +7,9 @@ Why use the best practices when you can use the worsts ?
 The challenge of this project is to use PHP, Shell script, JS, HTML and CSS to make a fonctionnal and usefull webserver manager in only one file.
 
 
+<span style="color:red">New version in Python under development</span> : [here](https://github.com/sellan/Firedoor/tree/dev)
+
+
 ## Build
 ##### Export code in one file :
 
