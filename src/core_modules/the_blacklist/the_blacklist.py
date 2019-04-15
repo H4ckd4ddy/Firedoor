@@ -66,7 +66,7 @@ class the_blacklist():
 	
 	@staticmethod
 	def startup_entrypoint(database):
-		database.report_ip = the_blacklist.report_ip
+		database.runtime_space['report_ip'] = the_blacklist.report_ip
 	
 	@staticmethod
 	def web_entrypoint(database, client_ip, get, post):

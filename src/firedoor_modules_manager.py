@@ -1,6 +1,6 @@
 import sys
 import os
-from json_database import database
+from config_database import database
 
 class module:
 

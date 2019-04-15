@@ -18,7 +18,7 @@ import signal
 import json
 import shutil
 from shutil import copyfile
-from json_database import database
+from config_database import database
 from firedoor_modules_manager import *
 from request_handler import request_handler
 

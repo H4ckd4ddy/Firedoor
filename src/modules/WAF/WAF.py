@@ -70,7 +70,7 @@ class WAF():
 			load = str(payload)
 			data = urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(load))))
 			if WAF.XSS_pattern.search(data):
-				WAF.database.report_ip(packet[IP].src, 3, 'Cross-site scripting')
+				WAF.database.runtime_space['report_ip'](packet[IP].src, 3, 'Cross-site scripting')
 		except:
 			pass
 	
