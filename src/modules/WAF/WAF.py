@@ -2,6 +2,7 @@ from scapy.all import *
 from threading import Thread
 import re
 import urllib
+from analyzers_manager import analyzers_manager
 
 class WAF():
 	
