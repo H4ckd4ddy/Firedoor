@@ -6,6 +6,7 @@ import urllib
 class WAF():
 	
 	thread = None
+	analyzers = {}
 	
 	@staticmethod
 	def install_entrypoint(database):
@@ -60,6 +61,15 @@ class WAF():
 	def check_packet(packet):
 		WAF.check_XSS(packet)
 		WAF.check_SQLI(packet)
+	
+	"""
+	@staticmethod
+	def import_analyzers():
+		if os.path.isdir('analyzers'):
+			for analyzer_name in os.listdir('analyzers'):
+				if analyzer_name not in WAF.analyzers:
+					WAF.analyzers[analyzer_name] = module(directory, module_name)
+	"""
 	
 	@staticmethod
 	def check_XSS(packet):
