@@ -11,15 +11,15 @@ class WAF():
 	
 	@staticmethod
 	def install_entrypoint(database):
-		database.set('waf_state', 'off')
+		database.set('state', 'off', 'WAF')
 	
 	@staticmethod
 	def uninstall_entrypoint(database):
-		database.rem('waf_state')
+		database.rem('state', 'WAF')
 	
 	@staticmethod
 	def startup_entrypoint(database):
-		if database.get('waf_state') == 'on':
+		if database.get('state', 'WAF') == 'on':
 			WAF.start(database)
 			print('ok')
 	
@@ -30,13 +30,13 @@ class WAF():
 		WAF.thread = Thread(target = WAF.analyser, args=[database])
 		WAF.thread.daemon = True
 		WAF.thread.start()
-		database.set('waf_state', 'on')
+		database.set('state', 'on', 'WAF')
 	
 	@staticmethod
 	def stop(database):
 		if WAF.thread != None:
 			WAF.thread = None
-		database.set('waf_state', 'off')
+		database.set('state', 'off', 'WAF')
 	
 	@staticmethod
 	def analyser(database):
@@ -110,7 +110,7 @@ class WAF():
 	def return_interface(database):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
-			html = html.replace('{{waf_state}}', database.get('waf_state'))
+			html = html.replace('{{waf_state}}', database.get('state', 'WAF'))
 			if database.get('waf_state') == 'on':
 				action = 'stop'
 			else:

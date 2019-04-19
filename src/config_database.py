@@ -24,15 +24,19 @@ class database:
 			json.dump(cls.database, json_file, indent=4)
 	
 	@classmethod
-	def get(cls, key):
-		return cls.database[key]
+	def get(cls, key, module='general_settings'):
+		return cls.database[module][key]
 	
 	@classmethod
-	def set(cls, key, value):
-		cls.database[key] = value
+	def set(cls, key, value, module='general_settings'):
+		if module not in cls.database:
+			cls.database[module] = {}
+		cls.database[module][key] = value
 		cls.export_to_file()
 	
 	@classmethod
-	def rem(cls, key):
-		del cls.database[key]
+	def rem(cls, key, module='general_settings'):
+		del cls.database[module][key]
+		if len(cls.database[module]) == 0:
+			del cls.database[module]
 		cls.export_to_file()

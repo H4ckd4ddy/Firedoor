@@ -7,15 +7,15 @@ class DNS_shield():
 	
 	@staticmethod
 	def install_entrypoint(database):
-		database.set('dns_shield_state', 'off')
+		database.set('state', 'off', 'DNS')
 	
 	@staticmethod
 	def uninstall_entrypoint(database):
-		database.rem('dns_shield_state')
+		database.rem('state', 'DNS')
 	
 	@staticmethod
 	def startup_entrypoint(database):
-		if database.get('dns_shield_state') == 'on':
+		if database.get('state', 'DNS') == 'on':
 			DNS_shield.start(database)
 			print('ok')
 	
@@ -24,13 +24,13 @@ class DNS_shield():
 		DNS_shield.thread = Thread(target = DNS_shield.analyser, args=[database])
 		DNS_shield.thread.daemon = True
 		DNS_shield.thread.start()
-		database.set('dns_shield_state', 'on')
+		database.set('state', 'on', 'DNS')
 	
 	@staticmethod
 	def stop(database):
 		if DNS_shield.thread != None:
 			DNS_shield.thread = None
-		database.set('dns_shield_state', 'off')
+		database.set('state', 'off', 'DNS')
 	
 	@staticmethod
 	def analyser(database):

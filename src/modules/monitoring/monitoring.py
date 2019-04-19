@@ -15,18 +15,18 @@ class monitoring():
 	
 	@staticmethod
 	def install_entrypoint(database):
-		database.set('monitoring_state', 'off')
-		database.set('monitoring_logs_dir', '/var/log/firedoor/')
+		database.set('state', 'off', 'monitoring')
+		database.set('logs_dir', '/var/log/firedoor/', 'monitoring')
 	
 	@staticmethod
 	def uninstall_entrypoint(database):
-		database.rem('monitoring_state')
-		if os.path.isdir(database.get('monitoring_logs_dir')):
-			shutil.rmtree(database.get('monitoring_logs_dir'))
+		database.rem('state', 'monitoring')
+		if os.path.isdir(database.get('logs_dir', 'monitoring')):
+			shutil.rmtree(database.get('logs_dir', 'monitoring'))
 	
 	@staticmethod
 	def startup_entrypoint(database):
-		if database.get('monitoring_state') == 'on':
+		if database.get('state', 'monitoring') == 'on':
 			monitoring.start(database, 60)
 	
 	@staticmethod
@@ -47,14 +47,14 @@ class monitoring():
 		monitoring.thread = Thread(target = monitoring.set_interval, args=[database, monitoring.measuring_values, interval])
 		monitoring.thread.daemon = True
 		monitoring.thread.start()
-		database.set('monitoring_state', 'on')
+		database.set('state', 'on', 'monitoring')
 	
 	@staticmethod
 	def stop(database):
 		if monitoring.thread != None:
 			monitoring.thread.stop = True
 			monitoring.thread = None
-		database.set('monitoring_state', 'off')
+		database.set('state', 'off', 'monitoring')
 	
 	@staticmethod
 	def measuring_values(database):
@@ -105,29 +105,29 @@ class monitoring():
 		date = datetime.datetime.now().strftime('%Y-%m-%d')
 		time = datetime.datetime.now().strftime('%H:%M:%S')
 		value = ' , '.join(values)
-		with open(database.get('monitoring_logs_dir')+date+'/'+mesuring_type+'.log', 'a+') as logs_file:
+		with open(database.get('logs_dir', 'monitoring')+date+'/'+mesuring_type+'.log', 'a+') as logs_file:
 			logs_file.write('{} {} , {}\n'.format(date, time, value))
 	
 	@staticmethod
 	def prepare_directory(database):
-		if not os.path.isdir(database.get('monitoring_logs_dir')):
-			os.mkdir(database.get('monitoring_logs_dir'))
+		if not os.path.isdir(database.get('logs_dir', 'monitoring')):
+			os.mkdir(database.get('logs_dir', 'monitoring'))
 		date = datetime.datetime.now().strftime('%Y-%m-%d')
-		if not os.path.isdir(database.get('monitoring_logs_dir')+date):
-			os.mkdir(database.get('monitoring_logs_dir')+date)
+		if not os.path.isdir(database.get('logs_dir', 'monitoring')+date):
+			os.mkdir(database.get('logs_dir', 'monitoring')+date)
 	
 	@staticmethod
 	def return_logs(database, mesuring_type, date=datetime.datetime.now().strftime('%Y-%m-%d')):
-		if os.path.exists(database.get('monitoring_logs_dir')+date+'/'+mesuring_type+'.log'):
-			with open(database.get('monitoring_logs_dir')+date+'/'+mesuring_type+'.log', 'r') as logs_file:
+		if os.path.exists(database.get('logs_dir', 'monitoring')+date+'/'+mesuring_type+'.log'):
+			with open(database.get('logs_dir', 'monitoring')+date+'/'+mesuring_type+'.log', 'r') as logs_file:
 				return 200, logs_file.read()
 		return 404, 'Not found'
 	
 	@staticmethod
 	def generate_date_list(database):
-		if os.path.exists(database.get('monitoring_logs_dir')):
+		if os.path.exists(database.get('logs_dir', 'monitoring')):
 			dates = []
-			for date in sorted(os.listdir(database.get('monitoring_logs_dir')), reverse=True):
+			for date in sorted(os.listdir(database.get('logs_dir', 'monitoring')), reverse=True):
 				dates.append('<option>{}</option>'.format(date))
 			return '\n'.join(dates)
 		return 'no data'
@@ -137,8 +137,8 @@ class monitoring():
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
 			html = html.replace('{{monitoring_dates}}', monitoring.generate_date_list(database))
-			html = html.replace('{{monitoring_state}}', database.get('monitoring_state'))
-			if database.get('monitoring_state') == 'on':
+			html = html.replace('{{monitoring_state}}', database.get('state', 'monitoring'))
+			if database.get('state', 'monitoring') == 'on':
 				action = 'stop'
 			else:
 				action = 'start'
