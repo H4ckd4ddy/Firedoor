@@ -111,7 +111,7 @@ class WAF():
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
 			html = html.replace('{{waf_state}}', database.get('state', 'WAF'))
-			if database.get('waf_state') == 'on':
+			if database.get('state', 'WAF') == 'on':
 				action = 'stop'
 			else:
 				action = 'start'
