@@ -34,7 +34,19 @@ def install():
 	if not os.path.isdir(config_directory):
 		os.mkdir(config_directory)
 	if not os.path.exists(config_directory+'database.json'):
+		if hasattr(sys, '_MEIPASS'):
+			base_directory = getattr(sys, '_MEIPASS', os.getcwd())
+		else:
+			base_directory = os.path.dirname(os.path.realpath(__file__))
+		os.chdir(base_directory)
 		copyfile('default_database.json', config_directory+'database.json')
+	if not os.path.exists('/etc/systemd/system/firedoor.service') and os.path.isdir('/etc/systemd/system'):
+		with open('firedoor.service', 'r') as default_service_file:
+			service = default_service_file.read()
+			service = service.replace('{{firedoor_path}}', os.path.realpath(__file__))
+			with open('/etc/systemd/system/firedoor.service', 'w+') as service_file:
+				service_file.write(service)
+		os.system('systemctl enable firedoor.service')
 	initialisation()
 	modules_manager.install_modules()
 
@@ -111,7 +123,6 @@ def main():
 		if len(sys.argv) > 1:
 			if sys.argv[1] == 'install':
 				install()
-				initialisation()
 			else:
 				print('Firedoor is not correctly installed')
 				exit()
