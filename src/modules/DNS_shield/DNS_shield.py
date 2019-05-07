@@ -7,15 +7,15 @@ class DNS_shield():
 	
 	@staticmethod
 	def install_entrypoint(database):
-		database.set('state', 'off', 'DNS')
+		database.set('state', 'off', 'DNS_shield')
 	
 	@staticmethod
 	def uninstall_entrypoint(database):
-		database.rem('state', 'DNS')
+		database.rem('state', 'DNS_shield')
 	
 	@staticmethod
 	def startup_entrypoint(database):
-		if database.get('state', 'DNS') == 'on':
+		if database.get('state', 'DNS_shield') == 'on':
 			DNS_shield.start(database)
 			print('ok')
 	
@@ -24,13 +24,13 @@ class DNS_shield():
 		DNS_shield.thread = Thread(target = DNS_shield.analyser, args=[database])
 		DNS_shield.thread.daemon = True
 		DNS_shield.thread.start()
-		database.set('state', 'on', 'DNS')
+		database.set('state', 'on', 'DNS_shield')
 	
 	@staticmethod
 	def stop(database):
 		if DNS_shield.thread != None:
 			DNS_shield.thread = None
-		database.set('state', 'off', 'DNS')
+		database.set('state', 'off', 'DNS_shield')
 	
 	@staticmethod
 	def analyser(database):
@@ -71,10 +71,16 @@ class DNS_shield():
 			DNS_shield.start(database)
 		elif len(get) == 1 and 'stop' in get:
 			DNS_shield.stop(database)
-		return 200, 'OK'
+		return DNS_shield.return_interface(database)
 	
 	@staticmethod
 	def return_interface(database):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
+			html = html.replace('{{DNS_shield_state}}', database.get('state', 'DNS_shield'))
+			if database.get('state', 'DNS_shield') == 'on':
+				action = 'stop'
+			else:
+				action = 'start'
+			html = html.replace('{{DNS_shield_action}}', action)
 			return 200, html
