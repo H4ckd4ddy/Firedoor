@@ -55,7 +55,7 @@ class request_handler(BaseHTTPRequestHandler):
 		post = self.parse_POST()
 		if len(parameters) == 0 and len(post) > 0:
 			if 'action' in post:
-				if post['action'] == 'login':
+				if post['action'] == 'login' and 'password' in post:
 					if hashlib.sha512(post['password'].encode('utf-8')).hexdigest() == database.get('password'):
 						token = os.urandom(32).hex()
 						sessions[token] = {}
@@ -63,6 +63,7 @@ class request_handler(BaseHTTPRequestHandler):
 						session_cookie = 'session={}'.format(token)
 						self.return_html(200, '<script>location.reload();</script>', session_cookie)
 					else:
+						database.runtime_space['report_ip'](self.client_address[0], 2, 'Firedoor login attempt')
 						self.return_html(200, self.return_loginpage().replace('<!---->', 'Access denied'))
 						return
 			self.return_html(200, self.return_loginpage())

@@ -11,11 +11,6 @@ class settings():
 				if post['action'] == 'change_settings':
 					result = settings.change_settings(database, post)
 					return settings.return_interface(database, result[0], result[1])
-		if len(get) > 0:
-			if get[0] == 'clear_ip':
-				settings.clear_ip_blacklist(database)
-				msg = 'IP blacklist cleared'
-				return settings.return_interface(database, msg, 'green')
 		return settings.return_interface(database)
 	
 	@staticmethod
@@ -59,10 +54,6 @@ class settings():
 				else:
 					return 'Key file not found', 'red'
 		return 'Settings saved','green'
-	
-	@staticmethod
-	def clear_ip_blacklist(database):
-		database.set('IP', [])
 	
 	@staticmethod
 	def return_interface(database, msg='', color='white'):
