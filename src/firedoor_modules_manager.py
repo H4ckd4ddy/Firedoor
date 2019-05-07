@@ -19,25 +19,30 @@ class modules_manager:
 	modules = {}
 
 	@classmethod
-	def import_modules(cls):
-		cls.import_modules_from_dir('core_modules')
-		cls.import_modules_from_dir('modules')
+	def import_modules(cls, import_disabled_modules=False):
+		cls.import_modules_from_dir('core_modules', True)
+		cls.import_modules_from_dir('modules', import_disabled_modules)
 
 	@classmethod
-	def import_modules_from_dir(cls, directory):
+	def import_modules_from_dir(cls, directory, required_modules=False):
 		directory = directory.rstrip('/')
 		if os.path.isdir(directory):
 			for module_name in sorted(os.listdir(directory)):
 				if module_name not in cls.modules:
-					cls.modules[module_name] = module(directory, module_name)
+					if module_name in database.get('activated_modules') or required_modules:
+						cls.modules[module_name] = module(directory, module_name)
 
 	@classmethod
 	def install_modules(cls):
+		activated_modules = database.get('activated_modules')
 		for module_name in cls.modules:
+			if module_name not in activated_modules:
+				activated_modules.append(module_name)
 			if hasattr(cls.modules[module_name].obj, 'install_entrypoint'):
 				os.chdir(cls.modules[module_name].path)
 				cls.modules[module_name].obj.install_entrypoint(database)
 				os.chdir(database.get('base_directory'))
+		database.set('activated_modules', activated_modules)
 
 	@classmethod
 	def uninstall_modules(cls):

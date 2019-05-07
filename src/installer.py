@@ -6,12 +6,12 @@ from firedoor_modules_manager import *
 class installer:
 	
 	@classmethod
-	def initialisation(cls, config_directory):
+	def initialisation(cls, config_directory, import_disabled_modules=False):
 		database.init(config_directory+'database.json')
 		database.set('config_directory', config_directory)
 		database.set('base_directory', cls.get_exe_path())
 		os.chdir(database.get('base_directory'))
-		modules_manager.import_modules()
+		modules_manager.import_modules(import_disabled_modules)
 	
 	@classmethod
 	def install(cls, config_directory):
@@ -31,13 +31,13 @@ class installer:
 				with open('/etc/systemd/system/firedoor.service', 'w+') as service_file:
 					service_file.write(service)
 			os.system('systemctl enable firedoor.service')
-		cls.initialisation(config_directory)
+		cls.initialisation(config_directory, True)
 		modules_manager.install_modules()
 		print('Firedoor successfully installed !')
 	
 	@classmethod
 	def uninstall(cls, config_directory):
-		cls.initialisation(config_directory)
+		cls.initialisation(config_directory, True)
 		if cls.confirm_uninstall():
 			modules_manager.uninstall_modules()
 			if os.path.isdir(config_directory):
