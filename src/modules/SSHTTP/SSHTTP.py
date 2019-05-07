@@ -18,6 +18,7 @@ import os
 
 class SSHTTP():
 	
+	"""
 	@staticmethod
 	def web_entrypoint(database, client_ip, get, post):
 		if len(post) > 0:
@@ -29,6 +30,7 @@ class SSHTTP():
 				# ------ PROBLEM END ------
 		else:
 			return SSHTTP.return_interface(database)
+	"""
 	
 	@staticmethod
 	def return_command_result(cmd):
