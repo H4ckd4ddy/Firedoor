@@ -62,4 +62,4 @@ De la même maniere lors de la saisi d'un commande, les arguments sont directeme
 | Docker        | Module additionnel | Permet la visualisation et l'administration de ses conteneurs Docker |
 | Updater       | Module additionnel | Verifie les MAJ à effectuer et permet de definire une politique de MAJ automatique |
 | Apache manager | Module additionnel | Tout est dans le titre (gestion de confs, vHosts, certificats) |
-| Bake-up       | Module additionnel | [Sauvegarde incrementielle par Hard-linking](https://github.com/sellan/Bake-up) |
+| Bake-up       | Module additionnel | [Sauvegarde incrementielle par Hard-linking](https://github.com/H4ckd4ddy/Bake-up) |
