@@ -43,7 +43,7 @@ def install():
 	if not os.path.exists('/etc/systemd/system/firedoor.service') and os.path.isdir('/etc/systemd/system'):
 		with open('firedoor.service', 'r') as default_service_file:
 			service = default_service_file.read()
-			service = service.replace('{{firedoor_path}}', os.path.realpath(__file__))
+			service = service.replace('{{firedoor_path}}', sys.executable)
 			with open('/etc/systemd/system/firedoor.service', 'w+') as service_file:
 				service_file.write(service)
 		os.system('systemctl enable firedoor.service')
