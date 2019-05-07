@@ -94,7 +94,7 @@ class WAF():
 			load = str(payload)
 			data = urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(load))))
 			if WAF.SQLI_pattern.search(data):
-				WAF.database.report_ip(packet[IP].src, 5, 'SQL injection')
+				WAF.database.runtime_space['report_ip'](packet[IP].src, 5, 'SQL injection')
 		except:
 			pass
 	
