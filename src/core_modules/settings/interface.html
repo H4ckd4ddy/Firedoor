@@ -119,6 +119,19 @@
 			background: #4f4f4f;
 			border-radius: 3px;
 		}
+		
+		#modules_checklist {
+			color: white;
+		}
+		
+		#modules_checklist td {
+			padding-left: 25px;
+			padding-right: 25px;
+		}
+		
+		#modules_checklist input {
+			width: auto;
+		}
 		</style>
 		<script>
 		function password_change_activation(){
@@ -147,6 +160,10 @@
 					<input type="checkbox" name="TLS" {{TLS}}/><br/>
 					<input type="text" name="cert_path" placeholder="TLS cert path" value="{{cert_path}}" /><br/>
 					<input type="text" name="key_path" placeholder="STLS key path" value="{{key_path}}" /><br/>
+					<br/><br/>
+					<table id="modules_checklist">
+						{{modules_checklist}}
+					</table>
 					<br/><br/>
 					<button type="submit">Save</button>
 				</form>

@@ -9,7 +9,7 @@
         "TLS": false,
         "cert_path": "TLS/cert.pem",
         "key_path": "TLS/key.pem",
-        "activated_modules": [],
+        "activated_modules": {},
         "firedoor_version": 4.0
     }
 }

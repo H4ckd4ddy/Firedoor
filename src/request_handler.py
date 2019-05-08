@@ -113,9 +113,10 @@ class request_handler(BaseHTTPRequestHandler):
 		with open('html/home.html', 'r', encoding='utf-8') as homepage:
 			modules_list = ''
 			for module_name in modules_manager.modules:
-				if hasattr(modules_manager.modules[module_name].obj, 'web_entrypoint'):
-					if os.path.exists(modules_manager.modules[module_name].path+'/icon.png'):
-						modules_list += '<a href="{}" title="{}"><div style="background: url(\'icon/{}\');background-size: cover;" class="icon"></div></a>'.format(module_name, module_name, module_name)
+				if modules_manager.modules[module_name].enable:
+					if hasattr(modules_manager.modules[module_name].obj, 'web_entrypoint'):
+						if os.path.exists(modules_manager.modules[module_name].path+'/icon.png'):
+							modules_list += '<a href="{}" title="{}"><div style="background: url(\'icon/{}\');background-size: cover;" class="icon"></div></a>'.format(module_name, module_name, module_name)
 			html = homepage.read()
 			html = html.replace('{{modules}}', modules_list)
 			return html

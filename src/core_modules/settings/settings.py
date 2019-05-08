@@ -1,6 +1,7 @@
 import os
 import hashlib
 import urllib.parse
+from firedoor_modules_manager import *
 
 class settings():
 	
@@ -55,6 +56,17 @@ class settings():
 					return 'Key file not found', 'red'
 		return 'Settings saved','green'
 	
+	def generate_modules_checklist():
+		modules = modules_manager.get_optional_modules_list()
+		checklist = ''
+		for module_name in modules:
+			checklist += '<tr>\n'
+			checklist += '<td>'+module_name+'</td>\n'
+			check = 'checked' if modules[module_name] else ''
+			checklist += '<td><input type="checkbox" name="horns" '+check+'></td>\n'
+			checklist += '</tr>\n'
+		return checklist
+
 	@staticmethod
 	def return_interface(database, msg='', color='white'):
 		with open('interface.html', 'r') as interface:
@@ -65,4 +77,5 @@ class settings():
 			html = html.replace('{{TLS}}', 'checked' if database.get('TLS') else '')
 			html = html.replace('{{cert_path}}', database.get('cert_path'))
 			html = html.replace('{{key_path}}', database.get('key_path'))
+			html = html.replace('{{modules_checklist}}', settings.generate_modules_checklist())
 			return 200, html
