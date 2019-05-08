@@ -54,6 +54,16 @@ class settings():
 					database.set('key_path', post['key_path'])
 				else:
 					return 'Key file not found', 'red'
+		for var_name in post:
+			if var_name.find('hidden_activation__') >= 0:
+				module_name = var_name.replace('hidden_activation__','')
+				if module_name in modules_manager.modules:
+					desirate_state = False
+					if 'activation__{}'.format(module_name) in post:
+						if post['activation__{}'.format(module_name)] == 'on':
+							desirate_state = True
+					if desirate_state != database.get('activated_modules')[module_name]:
+						modules_manager.modules[module_name].change_state(desirate_state)
 		return 'Settings saved','green'
 	
 	def generate_modules_checklist():
@@ -63,7 +73,8 @@ class settings():
 			checklist += '<tr>\n'
 			checklist += '<td>'+module_name+'</td>\n'
 			check = 'checked' if modules[module_name] else ''
-			checklist += '<td><input type="checkbox" name="horns" '+check+'></td>\n'
+			checklist += '<td><input type="checkbox" name="activation__{}" {}></td>\n'.format(module_name, check)
+			checklist += '<input type="hidden" name="hidden_activation__{}" value="disable">\n'.format(module_name, check)
 			checklist += '</tr>\n'
 		return checklist
 

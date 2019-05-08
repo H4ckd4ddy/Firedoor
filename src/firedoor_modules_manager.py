@@ -13,6 +13,7 @@ class module:
 	def __init__(self, directory, module_name, required=False):
 		if os.path.isdir(directory+'/'+module_name):
 			self.name = module_name
+			self.required = required
 			self.path = directory+'/'+module_name
 			sys.path.insert(0, self.path)
 			module = __import__(module_name)
@@ -25,6 +26,16 @@ class module:
 		else:
 			return False
 
+	def change_state(self, desirate_state):
+		if not self.required:
+			activated_modules = database.get('activated_modules')
+			if desirate_state:
+				activated_modules[self.name] = True
+				self.enable = True
+			else:
+				activated_modules[self.name] = False
+				self.enable = False
+			database.set('activated_modules', activated_modules)
 
 class modules_manager:
 
