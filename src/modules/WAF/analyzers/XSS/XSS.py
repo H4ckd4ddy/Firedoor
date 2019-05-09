@@ -8,9 +8,7 @@ class XSS():
 	
 	@classmethod
 	def packet_entrypoint(cls, packet):
-		print('test')
 		try:
-			print('A')
 			payload = bytes(packet[TCP].payload)
 			if sum(payload) == 0:
 				return
