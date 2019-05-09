@@ -7,7 +7,6 @@ from analyzers_manager import analyzers_manager
 class WAF():
 	
 	thread = None
-	analyzers = {}
 	
 	@staticmethod
 	def install_entrypoint(database):
@@ -25,8 +24,9 @@ class WAF():
 	
 	@staticmethod
 	def start(database):
-		WAF.SQLI_pattern = re.compile(r"'\s*(AND|OR|XOR|&&|\|\|)\s*('|[0-9]|`?[a-z\._-]+`?\s*=|[a-z]+\s*\()")
-		WAF.XSS_pattern = re.compile(r"(\b)(on\S+)(\s*)=|javascript|(<\s*)(\/*)script")
+		#WAF.SQLI_pattern = re.compile(r"'\s*(AND|OR|XOR|&&|\|\|)\s*('|[0-9]|`?[a-z\._-]+`?\s*=|[a-z]+\s*\()")
+		#WAF.XSS_pattern = re.compile(r"(\b)(on\S+)(\s*)=|javascript|(<\s*)(\/*)script")
+		analyzers_manager.import_analyzers()
 		WAF.thread = Thread(target = WAF.analyser, args=[database])
 		WAF.thread.daemon = True
 		WAF.thread.start()
@@ -41,7 +41,7 @@ class WAF():
 	@staticmethod
 	def analyser(database):
 		WAF.database = database
-		sniff(prn=WAF.packet_callback, store=0, count=0, stop_filter=WAF.check_state)
+		sniff(prn=analyzers_manager.packets_handler, store=0, count=0, stop_filter=WAF.check_state)
 		#sniff(filter='tcp', prn=WAF.packet_callback, store=0, count=0, stop_filter=WAF.check_state)
 	
 	@staticmethod
@@ -51,6 +51,7 @@ class WAF():
 		else:
 			return False
 	
+	"""
 	@staticmethod
 	def packet_callback(packet):
 		if TCP in packet:
@@ -63,14 +64,14 @@ class WAF():
 		WAF.check_XSS(packet)
 		WAF.check_SQLI(packet)
 	
-	"""
+	
 	@staticmethod
 	def import_analyzers():
 		if os.path.isdir('analyzers'):
 			for analyzer_name in os.listdir('analyzers'):
 				if analyzer_name not in WAF.analyzers:
 					WAF.analyzers[analyzer_name] = module(directory, module_name)
-	"""
+	
 	
 	@staticmethod
 	def check_XSS(packet):
@@ -97,6 +98,7 @@ class WAF():
 				WAF.database.runtime_space['report_ip'](packet[IP].src, 5, 'SQL injection')
 		except:
 			pass
+	"""
 	
 	@staticmethod
 	def web_entrypoint(database, client_ip, get, post):
