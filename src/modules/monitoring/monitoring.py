@@ -68,10 +68,8 @@ class monitoring():
 		values = []
 		if measuring_type == 'CPU':
 			values.append(str(psutil.cpu_percent()))
-			#values.append(str(0)) #tmp
 		elif measuring_type == 'RAM':
 			ram_values = dict(psutil.virtual_memory()._asdict())
-			#values.append(str(0)) #tmp
 			values.append(str(ram_values['total']))
 			values.append(str(ram_values['used']))
 		elif measuring_type == 'NET':
@@ -97,7 +95,6 @@ class monitoring():
 			
 			values.append(str(download))
 			values.append(str(upload))
-			#values.append(str(0)) #tmp
 		return values
 	
 	@staticmethod
