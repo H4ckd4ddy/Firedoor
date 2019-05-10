@@ -103,6 +103,7 @@
 			text-align: center;
 			font-weight: bold;
 			font-size: 25px;
+			cursor: pointer;
 		}
 		
 		#info {
@@ -246,7 +247,7 @@
 				
 				var rules = [];
 				
-				for(let i = 1;i < trs.length;i++){
+				for(let i = 1;i < (trs.length-1);i++){
 					var tds = trs[i].querySelectorAll("td");
 					rules[i] = [];
 					rules[i][0] = '-A';
