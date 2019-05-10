@@ -72,7 +72,7 @@
 			 border-collapse: collapse;
 			 font-size: 15px;
 			 box-shadow: 1px 1px 10px #555;
-			 margin-bottom: 150px;
+			 margin-bottom: 50px;
 		}
 		
 		tr {
@@ -98,10 +98,21 @@
 			color: red;
 			cursor: pointer;
 		}
+		
+		#info {
+			position: fixed;
+			bottom: 10px;
+			right: 10px;
+			font-size: 18px;
+			color: red;
+			padding: 5px;
+			background: #4f4f4f;
+			border-radius: 3px;
+			opacity: 0;
+			transition: opacity 1s;
+		}
 		</style>
 		<script>
-			var source_rules;
-			
 			function get_rules() {
 				var xhr = null; 
 				if(window.XMLHttpRequest){ // Firefox et autres
@@ -124,8 +135,6 @@
 					}else if(xhr.readyState == 4 && xhr.status == 200){
 						
 						rules = JSON.parse(xhr.responseText);
-						
-						source_rules = rules;
 						
 						table = document.getElementById('rules_table');
 						
@@ -185,17 +194,10 @@
 							}
 							td = document.createElement("td");
 							td.innerHTML = 'X';
+							td.className = 'cross';
 							tr.appendChild(td);
 							table.appendChild(tr);
                         }
-						
-						/*if(xhr.responseText == "OK"){
-							document.getElementById("indicateur_maj").style.visibility = "hidden";
-							affichage();
-						}else{
-							document.getElementById("indicateur_maj").innerHTML = "<span style='color:red;'>Erreur de synchronisation</span>"
-							window.setTimeout(maj, 1000);
-						}*/
 						
 					}
 					
@@ -208,7 +210,34 @@
 			function save() {
 				
 				var table = document.getElementById("rules_table");
-				var td = table.querySelectorAll("td");
+				var trs = table.querySelectorAll("tr");
+				
+				var rules = [];
+				
+				for(let i = 1;i < trs.length;i++){
+					var tds = trs[i].querySelectorAll("td");
+					rules[i] = [];
+					rules[i][0] = '-A';
+					rules[i][1] = tds[0].querySelectorAll("select")[0].value;
+					rules[i][2] = '-p';
+					rules[i][3] = tds[1].querySelectorAll("select")[0].value;
+					rules[i][4] = '-m';
+					rules[i][5] = 'multiport';
+					if (rules[i][1] == 'OUTPUT') {
+                        rules[i][6] = '--sports';
+                    }else{
+						rules[i][6] = '--dports';
+					}
+					rules[i][7] = tds[2].querySelectorAll("input")[0].value;
+					rules[i][8] = '-m';
+					rules[i][9] = 'comment';
+					rules[i][10] = '--comment';
+					rules[i][11] = tds[3].querySelectorAll("input")[0].value;
+					rules[i][12] = '-j';
+					rules[i][13] = tds[4].querySelectorAll("select")[0].value;
+				}
+				
+				rules.splice(0,1);
 				
                 var xhr = null; 
 				if(window.XMLHttpRequest){ // Firefox et autres
@@ -231,11 +260,9 @@
 					}else if(xhr.readyState == 4 && xhr.status == 200){
 						
 						if(xhr.responseText == "OK"){
-							document.getElementById("indicateur_maj").style.visibility = "hidden";
-							affichage();
+							info('Change saved');
 						}else{
-							document.getElementById("indicateur_maj").innerHTML = "<span style='color:red;'>Erreur de synchronisation</span>"
-							window.setTimeout(maj, 1000);
+							info('Saving error', true);
 						}
 						
 					}
@@ -244,8 +271,20 @@
 				
 				xhr.open('POST', '/rules_manager/rules', true);
 				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-				xhr.send("action=maj&data="+data_maj);
+				xhr.send("rules="+JSON.stringify(rules));
             }
+			
+			function info(msg, is_error){
+				var div = document.getElementById("info");
+				msg = is_error ? "⚠ "+msg : msg;
+				div.innerHTML = msg;
+				var color = is_error ? "red" : "green";
+				div.style.color = color;
+				div.style.opacity = 1;
+				setTimeout(function(){
+					div.style.opacity = 0;
+				}, 3000);
+			}
 		</script>
 	</head>
 	<body>
@@ -256,8 +295,9 @@
 			<div id="page">
 				<table id="rules_table">
 				</table>
-				<button type="submit" onClick="save">Save & apply</button>
+				<button type="submit" onClick="save()">Save & apply</button>
 				<script>get_rules();</script>
+				<div id="info"></div>
 			</div>
 		</center>
 	</body>
