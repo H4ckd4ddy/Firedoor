@@ -46,7 +46,7 @@
 			margin-top: 10%;
 		}
 		
-		input, button, textarea {
+		button {
 			width: 350px;
 			background: #4f4f4f;
 			border: none;
@@ -62,8 +62,10 @@
 			background: #3b3b3b;
 		}
 		
-		td {
-			padding: 10px;
+		textarea {
+			width: 70%;
+			height: 50%;
+			font-size: 15px;
 		}
 		
 		table {
@@ -73,21 +75,178 @@
 			 margin-bottom: 150px;
 		}
 		
-		table tbody:nth-child(2n+1) {
+		tr {
+			background: white;
+		}
+		
+		table tr:nth-child(2n+1) {
 			background: #d1d1d1;
 		}
 		
-		table tbody:first-child {
+		table tr:first-child {
 			color: white;
-			background: black;
+			background: #f54949;
+			font-weight: bold;
+			text-align: center;
 		}
 		
-		textarea {
-			width: 70%;
-			height: 50%;
-			font-size: 15px;
+		table td{
+			padding: 12px;
+		}
+		
+		.cross {
+			color: red;
+			cursor: pointer;
 		}
 		</style>
+		<script>
+			var source_rules;
+			
+			function get_rules() {
+				var xhr = null; 
+				if(window.XMLHttpRequest){ // Firefox et autres
+					xhr = new XMLHttpRequest(); 
+				}else if(window.ActiveXObject){ // Internet Explorer 
+					try {
+						xhr = new ActiveXObject('Msxml2.XMLHTTP');
+					} catch (e) {
+						xhr = new ActiveXObject('Microsoft.XMLHTTP');
+					}
+				}else{
+					alert('Votre navigateur ne supporte pas les objets XMLHTTPRequest...'); 
+					xhr = false; 
+				}
+				
+				xhr.onreadystatechange = function(){
+						
+					if( xhr.readyState < 4 ){
+						
+					}else if(xhr.readyState == 4 && xhr.status == 200){
+						
+						rules = JSON.parse(xhr.responseText);
+						
+						source_rules = rules;
+						
+						table = document.getElementById('rules_table');
+						
+						titles = document.createElement("tr");
+						titles_list = ['type', 'protocol', 'port', 'comment', 'action', ''];
+						options_lists = {
+							'type': ['INPUT', 'OUTPUT'],
+							'protocol': ['tcp', 'udp'],
+							'action': ['ACCEPT', 'DROP', 'BLOCK']
+						}
+						for (var title = 0;title < titles_list.length;title++) {
+							td = document.createElement("td");
+							td.innerHTML = titles_list[title];
+							titles.appendChild(td);
+						}
+						table.appendChild(titles);
+						
+						for (var rule = 0;rule < rules.length;rule++) {
+							for (var element = 0;element < rules[rule].length;element++) {
+								if (rules[rule][element].charCodeAt(0) == 45) {
+									rules[rule].splice(element,1);
+								}
+							}
+							for (var element = 0;element < rules[rule].length;element++) {
+								if (rules[rule][element].startsWith('comment')) {
+                                    rules[rule].splice(element,1);
+                                }else if (rules[rule][element].startsWith('multiport')) {
+                                    rules[rule].splice(element,1);
+                                }
+							}
+						}
+						
+						for (var rule = 0;rule < rules.length;rule++) {
+							tr = document.createElement("tr");
+							for (var element = 0;element < rules[rule].length;element++) {
+								td = document.createElement("td");
+								if (titles_list[element] in options_lists) {
+									options = options_lists[titles_list[element]];
+									select = document.createElement("select");
+                                    for(let option = 0;option < options.length;option++){
+										option_element = document.createElement("option");
+										option_element.innerHTML = options[option];
+										if (options[option] == rules[rule][element]) {
+                                            option_element.selected = true;
+                                        }
+										select.appendChild(option_element);
+									}
+									td.appendChild(select);
+                                }else{
+									input = document.createElement("input");
+									input.type = 'text';
+									input.placeholder = titles_list[element];
+									input.value = rules[rule][element];
+									td.appendChild(input);
+								}
+								tr.appendChild(td);
+							}
+							td = document.createElement("td");
+							td.innerHTML = 'X';
+							tr.appendChild(td);
+							table.appendChild(tr);
+                        }
+						
+						/*if(xhr.responseText == "OK"){
+							document.getElementById("indicateur_maj").style.visibility = "hidden";
+							affichage();
+						}else{
+							document.getElementById("indicateur_maj").innerHTML = "<span style='color:red;'>Erreur de synchronisation</span>"
+							window.setTimeout(maj, 1000);
+						}*/
+						
+					}
+					
+				};
+				
+				xhr.open('GET', '/rules_manager/rules', true);
+				xhr.send(null);
+			}
+			
+			function save() {
+				
+				var table = document.getElementById("rules_table");
+				var td = table.querySelectorAll("td");
+				
+                var xhr = null; 
+				if(window.XMLHttpRequest){ // Firefox et autres
+					xhr = new XMLHttpRequest(); 
+				}else if(window.ActiveXObject){ // Internet Explorer 
+					try {
+						xhr = new ActiveXObject('Msxml2.XMLHTTP');
+					} catch (e) {
+						xhr = new ActiveXObject('Microsoft.XMLHTTP');
+					}
+				}else{
+					alert('Votre navigateur ne supporte pas les objets XMLHTTPRequest...'); 
+					xhr = false; 
+				}
+				
+				xhr.onreadystatechange = function(){
+						
+					if( xhr.readyState < 4 ){
+						
+					}else if(xhr.readyState == 4 && xhr.status == 200){
+						
+						if(xhr.responseText == "OK"){
+							document.getElementById("indicateur_maj").style.visibility = "hidden";
+							affichage();
+						}else{
+							document.getElementById("indicateur_maj").innerHTML = "<span style='color:red;'>Erreur de synchronisation</span>"
+							window.setTimeout(maj, 1000);
+						}
+						
+					}
+					
+				};
+				
+				xhr.open('POST', '/rules_manager/rules', true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.send("action=maj&data="+data_maj);
+            }
+		</script>
 	</head>
 	<body>
 		<center>
@@ -95,11 +254,10 @@
 			<a id="return" href="/"><</a>
 			<div id="server">Server : {{server_name}}</div>
 			<div id="page">
-				<form method="POST">
-					<textarea name="rules" spellcheck="false">{{static_rules}}</textarea>
-					<br/><br/>
-					<button type="submit">Save</button>
-				</form>
+				<table id="rules_table">
+				</table>
+				<button type="submit" onClick="save">Save & apply</button>
+				<script>get_rules();</script>
 			</div>
 		</center>
 	</body>
