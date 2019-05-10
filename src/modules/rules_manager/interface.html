@@ -99,6 +99,12 @@
 			cursor: pointer;
 		}
 		
+		#add_line {
+			text-align: center;
+			font-weight: bold;
+			font-size: 25px;
+		}
+		
 		#info {
 			position: fixed;
 			bottom: 10px;
@@ -113,7 +119,7 @@
 		}
 		</style>
 		<script>
-			function get_rules() {
+			function get_rules(add_rule) {
 				var xhr = null; 
 				if(window.XMLHttpRequest){ // Firefox et autres
 					xhr = new XMLHttpRequest(); 
@@ -137,6 +143,8 @@
 						rules = JSON.parse(xhr.responseText);
 						
 						table = document.getElementById('rules_table');
+						
+						table.innerHTML = '';
 						
 						titles = document.createElement("tr");
 						titles_list = ['type', 'protocol', 'port', 'comment', 'action', ''];
@@ -166,6 +174,11 @@
                                 }
 							}
 						}
+						
+						if (add_rule) {
+                            new_rule = ["INPUT", "tcp", "", "", "ACCEPT"];
+							rules.push(new_rule);
+                        }
 						
 						for (var rule = 0;rule < rules.length;rule++) {
 							tr = document.createElement("tr");
@@ -200,7 +213,14 @@
 							tr.appendChild(td);
 							table.appendChild(tr);
                         }
-						
+						tr = document.createElement("tr");
+						td = document.createElement("td");
+						td.colSpan = '6';
+						td.innerHTML = '+';
+						tr.id = 'add_line';
+						tr.addEventListener("click", add, false);
+						tr.appendChild(td);
+						table.appendChild(tr);
 					}
 					
 				};
@@ -213,6 +233,10 @@
 				var targetElement = event.target || event.srcElement;
 				targetElement = targetElement.parentNode;
                 targetElement.parentNode.removeChild(targetElement);
+            }
+			
+			function add(event) {
+				get_rules(true);
             }
 			
 			function save() {
