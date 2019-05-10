@@ -195,6 +195,8 @@
 							td = document.createElement("td");
 							td.innerHTML = 'X';
 							td.className = 'cross';
+							td.addEventListener("click", remove, false);
+							td.onClick = 'remove()';
 							tr.appendChild(td);
 							table.appendChild(tr);
                         }
@@ -206,6 +208,12 @@
 				xhr.open('GET', '/rules_manager/rules', true);
 				xhr.send(null);
 			}
+			
+			function remove(event) {
+				var targetElement = event.target || event.srcElement;
+				targetElement = targetElement.parentNode;
+                targetElement.parentNode.removeChild(targetElement);
+            }
 			
 			function save() {
 				
