@@ -39,7 +39,6 @@ class WAF():
 	
 	@classmethod
 	def analyser(cls):
-		cls.database = database
 		sniff(prn=analyzers_manager.packets_handler, store=0, count=0, stop_filter=cls.check_state)
 	
 	@classmethod
