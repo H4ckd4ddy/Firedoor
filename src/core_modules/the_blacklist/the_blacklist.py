@@ -1,6 +1,7 @@
 import json
 import pyptables
 import time
+from config_database import database
 
 class the_blacklist():
 	
@@ -64,12 +65,12 @@ class the_blacklist():
 	
 	ip_list = {}
 	
-	@staticmethod
-	def startup_entrypoint(database):
+	@classmethod
+	def startup_entrypoint(cls):
 		database.runtime_space['report_ip'] = the_blacklist.report_ip
 	
-	@staticmethod
-	def web_entrypoint(database, client_ip, get, post):
+	@classmethod
+	def web_entrypoint(cls, client_ip, get, post):
 		if len(get) > 0:
 			if get[0] == 'ip':
 				if len(get) == 3:
@@ -78,10 +79,10 @@ class the_blacklist():
 					if get[1] in the_blacklist.ip_list:
 						return 200, json.dumps(the_blacklist.ip_list[get[1]].get_facts())
 				return 200, json.dumps(the_blacklist.get_ip_list())
-		return the_blacklist.return_interface(database)
+		return the_blacklist.return_interface()
 	
-	@staticmethod
-	def manage_ip(ip, action):
+	@classmethod
+	def manage_ip(cls, ip, action):
 		result = {}
 		try:
 			if action == 'block':
@@ -97,23 +98,23 @@ class the_blacklist():
 		
 		return json.dumps(result)
 	
-	@staticmethod
-	def get_ip_list():
+	@classmethod
+	def get_ip_list(cls):
 		result = []
 		for i in the_blacklist.ip_list:
 			result.append(the_blacklist.ip_list[i].to_list())
 		return result
 	
-	@staticmethod
-	def report_ip(addr, level, comment):
+	@classmethod
+	def report_ip(cls, addr, level, comment):
 		if addr not in the_blacklist.ip_list:
 			the_blacklist.ip_list[addr] = the_blacklist.ip(addr)
 		the_blacklist.ip_list[addr].add_fact(level, comment)
 		if the_blacklist.ip_list[addr].get_score() >= 10:
 			the_blacklist.ip_list[addr].block()
 	
-	@staticmethod
-	def return_interface(database):
+	@classmethod
+	def return_interface(cls):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
 			return 200, html

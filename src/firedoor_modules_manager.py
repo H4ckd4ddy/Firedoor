@@ -65,7 +65,7 @@ class modules_manager:
 					activated_modules[module_name] = False
 			if hasattr(cls.modules[module_name].obj, 'install_entrypoint'):
 				os.chdir(cls.modules[module_name].path)
-				cls.modules[module_name].obj.install_entrypoint(database)
+				cls.modules[module_name].obj.install_entrypoint()
 				os.chdir(database.get('base_directory'))
 		database.set('activated_modules', activated_modules)
 
@@ -74,7 +74,7 @@ class modules_manager:
 		for module_name in cls.modules:
 			if hasattr(cls.modules[module_name].obj, 'uninstall_entrypoint'):
 				os.chdir(cls.modules[module_name].path)
-				cls.modules[module_name].obj.uninstall_entrypoint(database)
+				cls.modules[module_name].obj.uninstall_entrypoint()
 				os.chdir(database.get('base_directory'))
 
 	@classmethod
@@ -83,7 +83,7 @@ class modules_manager:
 			if cls.modules[module_name].enable:
 				if hasattr(cls.modules[module_name].obj, 'cli_entrypoint'):
 					os.chdir(cls.modules[module_name].path)
-					cls.modules[module_name].obj.cli_entrypoint(database, args)
+					cls.modules[module_name].obj.cli_entrypoint(args)
 					os.chdir(database.get('base_directory'))
 				else:
 					print('Module "{}" does not have cli interface'.format(module_name))
@@ -99,7 +99,7 @@ class modules_manager:
 				if hasattr(cls.modules[module_name].obj, 'web_entrypoint'):
 					os.chdir(cls.modules[module_name].path)
 					client_ip = request_handler.client_address[0]
-					status, content = cls.modules[module_name].obj.web_entrypoint(database, client_ip, get, post)
+					status, content = cls.modules[module_name].obj.web_entrypoint(client_ip, get, post)
 					os.chdir(database.get('base_directory'))
 					return status, content
 				else:
@@ -118,7 +118,7 @@ class modules_manager:
 			if cls.modules[module_name].enable:
 				if hasattr(cls.modules[module_name].obj, 'startup_entrypoint'):
 					os.chdir(cls.modules[module_name].path)
-					cls.modules[module_name].obj.startup_entrypoint(database)
+					cls.modules[module_name].obj.startup_entrypoint()
 					os.chdir(database.get('base_directory'))
 
 

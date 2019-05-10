@@ -1,23 +1,24 @@
 import docker
 import json
+from config_database import database
 
 class docker_manager():
 	
 	data = {}
 	
-	@staticmethod
-	def web_entrypoint(database, client_ip, get, post):
+	@classmethod
+	def web_entrypoint(cls, client_ip, get, post):
 		if len(get) > 0:
 			if get[0] == 'containers':
 				if len(get) == 3:
-					return 200, docker_manager.manage_container(get[1], get[2])
+					return 200, cls.manage_container(get[1], get[2])
 				else:
-					return 200, json.dumps(docker_manager.get_containers_list())
+					return 200, json.dumps(cls.get_containers_list())
 		else:
-			return docker_manager.return_interface(database)
+			return cls.return_interface()
 	
-	@staticmethod
-	def get_containers_list():
+	@classmethod
+	def get_containers_list(cls):
 		client = docker.from_env()
 		result = []
 		try:
@@ -43,8 +44,8 @@ class docker_manager():
 				result.append(container_infos)
 		return result
 	
-	@staticmethod
-	def manage_container(container_id, action):
+	@classmethod
+	def manage_container(cls, container_id, action):
 		client = docker.from_env()
 		result = {}
 		try:
@@ -78,8 +79,8 @@ class docker_manager():
 			
 		return json.dumps(result)
 	
-	@staticmethod
-	def return_interface(database):
+	@classmethod
+	def return_interface(cls):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
 			return 200, html

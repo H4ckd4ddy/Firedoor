@@ -3,61 +3,62 @@ from threading import Thread
 import re
 import urllib
 from analyzers_manager import analyzers_manager
+from config_database import database
 
 class WAF():
 	
 	thread = None
 	
-	@staticmethod
-	def install_entrypoint(database):
+	@classmethod
+	def install_entrypoint(cls):
 		database.set('state', 'off', 'WAF')
 	
-	@staticmethod
-	def uninstall_entrypoint(database):
+	@classmethod
+	def uninstall_entrypoint(cls):
 		database.rem('state', 'WAF')
 	
-	@staticmethod
-	def startup_entrypoint(database):
+	@classmethod
+	def startup_entrypoint(cls):
 		if database.get('state', 'WAF') == 'on':
-			WAF.start(database)
+			cls.start()
 			print('ok')
 	
-	@staticmethod
-	def start(database):
+	@classmethod
+	def start(cls):
 		analyzers_manager.import_analyzers()
-		WAF.thread = Thread(target = WAF.analyser, args=[database])
-		WAF.thread.daemon = True
-		WAF.thread.start()
+		cls.thread = Thread(target = cls.analyser)
+		cls.thread.daemon = True
+		cls.thread.start()
 		database.set('state', 'on', 'WAF')
 	
-	@staticmethod
-	def stop(database):
-		if WAF.thread != None:
-			WAF.thread = None
+	@classmethod
+	def stop(cls):
+		if cls.thread != None:
+			cls.thread = None
 		database.set('state', 'off', 'WAF')
 	
-	@staticmethod
-	def analyser(database):
-		WAF.database = database
-		sniff(prn=analyzers_manager.packets_handler, store=0, count=0, stop_filter=WAF.check_state)
+	@classmethod
+	def analyser(cls):
+		cls.database = database
+		sniff(prn=analyzers_manager.packets_handler, store=0, count=0, stop_filter=cls.check_state)
 	
-	@staticmethod
-	def check_state(packet):
-		if WAF.thread == None:
+	@classmethod
+	def check_state(cls, packet):
+		if cls.thread == None:
 			return True
 		else:
 			return False
 	
-	@staticmethod
-	def web_entrypoint(database, client_ip, get, post):
+	@classmethod
+	def web_entrypoint(cls, client_ip, get, post):
 		if len(get) == 1 and 'start' in get:
-			WAF.start(database)
+			cls.start()
 		elif len(get) == 1 and 'stop' in get:
-			WAF.stop(database)
-		return WAF.return_interface(database)
+			cls.stop()
+		return cls.return_interface()
 	
-	@staticmethod
-	def return_interface(database):
+	@classmethod
+	def return_interface(cls):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
 			html = html.replace('{{waf_state}}', database.get('state', 'WAF'))

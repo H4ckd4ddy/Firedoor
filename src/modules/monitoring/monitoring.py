@@ -7,64 +7,65 @@ import shutil
 import psutil
 import datetime
 import netifaces
+from config_database import database
 
 class monitoring():
 	
 	data = {}
 	thread = None
 	
-	@staticmethod
-	def install_entrypoint(database):
+	@classmethod
+	def install_entrypoint(cls):
 		database.set('state', 'off', 'monitoring')
 		database.set('logs_dir', '/var/log/firedoor/', 'monitoring')
 	
-	@staticmethod
-	def uninstall_entrypoint(database):
+	@classmethod
+	def uninstall_entrypoint(cls):
 		database.rem('state', 'monitoring')
 		if os.path.isdir(database.get('logs_dir', 'monitoring')):
 			shutil.rmtree(database.get('logs_dir', 'monitoring'))
 	
-	@staticmethod
-	def startup_entrypoint(database):
+	@classmethod
+	def startup_entrypoint(cls):
 		if database.get('state', 'monitoring') == 'on':
-			monitoring.start(database, 60)
+			cls.start(60)
 	
-	@staticmethod
-	def web_entrypoint(database, client_ip, get, post):
+	@classmethod
+	def web_entrypoint(cls, client_ip, get, post):
 		if len(get) == 1 and 'start' in get:
-			monitoring.start(database, 60)
+			cls.start(60)
 		elif len(get) == 1 and 'stop' in get:
-			monitoring.stop(database)
+			cls.stop()
 		elif 'logs' in get:
 			if len(get) == 2:
-				return monitoring.return_logs(database, get[1])
+				return cls.return_logs(get[1])
 			elif len(get) == 3:
-				return monitoring.return_logs(database, get[1], get[2])
-		return monitoring.return_interface(database)
+				return cls.return_logs(get[1], get[2])
+		return cls.return_interface()
 	
-	@staticmethod
-	def start(database, interval):
-		monitoring.thread = Thread(target = monitoring.set_interval, args=[database, monitoring.measuring_values, interval])
-		monitoring.thread.daemon = True
-		monitoring.thread.start()
+	@classmethod
+	def start(cls, interval):
+		cls.thread = Thread(target = cls.set_interval, args=[cls.measuring_values, interval])
+		cls.thread.daemon = True
+		cls.thread.start()
 		database.set('state', 'on', 'monitoring')
 	
-	@staticmethod
-	def stop(database):
-		if monitoring.thread != None:
-			monitoring.thread.stop = True
-			monitoring.thread = None
+	@classmethod
+	def stop(cls):
+		if cls.thread != None:
+			cls.thread.stop = True
+			cls.thread = None
 		database.set('state', 'off', 'monitoring')
 	
-	@staticmethod
-	def measuring_values(database):
-		monitoring.prepare_directory(database)
+	@classmethod
+	def measuring_values(cls):
+		cls.prepare_directory()
 		measuring_types = ['CPU', 'RAM', 'NET']
 		for measuring_type in measuring_types:
-			monitoring.append_to_logs(database, measuring_type, monitoring.measuring(measuring_type))
+			cls.append_to_logs(measuring_type, cls.measuring(measuring_type))
 	
-	@staticmethod
-	def measuring(measuring_type):
+	@classmethod
+	def measuring(cls, measuring_type):
 		values = []
 		if measuring_type == 'CPU':
 			values.append(str(psutil.cpu_percent()))
@@ -97,31 +98,31 @@ class monitoring():
 			values.append(str(upload))
 		return values
 	
-	@staticmethod
-	def append_to_logs(database, mesuring_type, values):
+	@classmethod
+	def append_to_logs(cls, mesuring_type, values):
 		date = datetime.datetime.now().strftime('%Y-%m-%d')
 		time = datetime.datetime.now().strftime('%H:%M:%S')
 		value = ' , '.join(values)
 		with open(database.get('logs_dir', 'monitoring')+date+'/'+mesuring_type+'.log', 'a+') as logs_file:
 			logs_file.write('{} {} , {}\n'.format(date, time, value))
 	
-	@staticmethod
-	def prepare_directory(database):
+	@classmethod
+	def prepare_directory(cls):
 		if not os.path.isdir(database.get('logs_dir', 'monitoring')):
 			os.mkdir(database.get('logs_dir', 'monitoring'))
 		date = datetime.datetime.now().strftime('%Y-%m-%d')
 		if not os.path.isdir(database.get('logs_dir', 'monitoring')+date):
 			os.mkdir(database.get('logs_dir', 'monitoring')+date)
 	
-	@staticmethod
-	def return_logs(database, mesuring_type, date=datetime.datetime.now().strftime('%Y-%m-%d')):
+	@classmethod
+	def return_logs(cls, mesuring_type, date=datetime.datetime.now().strftime('%Y-%m-%d')):
 		if os.path.exists(database.get('logs_dir', 'monitoring')+date+'/'+mesuring_type+'.log'):
 			with open(database.get('logs_dir', 'monitoring')+date+'/'+mesuring_type+'.log', 'r') as logs_file:
 				return 200, logs_file.read()
 		return 404, 'Not found'
 	
-	@staticmethod
-	def generate_date_list(database):
+	@classmethod
+	def generate_date_list(cls):
 		if os.path.exists(database.get('logs_dir', 'monitoring')):
 			dates = []
 			for date in sorted(os.listdir(database.get('logs_dir', 'monitoring')), reverse=True):
@@ -129,11 +130,11 @@ class monitoring():
 			return '\n'.join(dates)
 		return 'no data'
 	
-	@staticmethod
-	def return_interface(database):
+	@classmethod
+	def return_interface(cls):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
-			html = html.replace('{{monitoring_dates}}', monitoring.generate_date_list(database))
+			html = html.replace('{{monitoring_dates}}', cls.generate_date_list())
 			html = html.replace('{{monitoring_state}}', database.get('state', 'monitoring'))
 			if database.get('state', 'monitoring') == 'on':
 				action = 'stop'
@@ -142,14 +143,14 @@ class monitoring():
 			html = html.replace('{{monitoring_action}}', action)
 			return 200, html
 	
-	@staticmethod
-	def set_interval(database, func, time):
-		monitoring.thread.stop = False
+	@classmethod
+	def set_interval(cls, func, time):
+		cls.thread.stop = False
 		e = threading.Event()
 		while not e.wait(time):
-			if not monitoring.thread:
+			if not cls.thread:
 				exit
-			elif monitoring.thread.stop:
+			elif cls.thread.stop:
 				exit()
 			else:
-				func(database)
+				func()

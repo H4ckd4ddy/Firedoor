@@ -3,6 +3,7 @@ import subprocess
 #import envoy
 import signal
 import os
+from config_database import database
 
 #def signal_handler(sig, frame):
 #	print('nothing...')
@@ -32,26 +33,26 @@ class SSHTTP():
 			return SSHTTP.return_interface(database)
 	"""
 	
-	@staticmethod
-	def return_command_result(cmd):
+	@classmethod
+	def return_command_result(cls, cmd):
 		thread = Thread(target = SSHTTP.exec_command)
 		thread.start()
 		#thread.join()
 		return 200, 'html'
 
-	@staticmethod
-	def cli_entrypoint(database, args):
+	@classmethod
+	def cli_entrypoint(cls, args):
 		print(SSHTTP.exec_cmd('echo test'))
 
-	@staticmethod
-	def exec_cmd(cmd):
+	@classmethod
+	def exec_cmd(cls, cmd):
 		p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 		result = p.communicate()[0].decode("utf-8")
 		result = str(result)
 		return result
 	
-	@staticmethod
-	def return_interface(database):
+	@classmethod
+	def return_interface(cls):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
 			return 200, html

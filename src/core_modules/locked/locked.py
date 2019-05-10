@@ -2,11 +2,12 @@ import os
 import pyptables
 from threading import Timer
 from shutil import copyfile
+from config_database import database
 
 class locked():
 	
-	@staticmethod
-	def install_entrypoint(database):
+	@classmethod
+	def install_entrypoint(cls):
 		config_files_list = {
 								'essential_rules.conf': 'essential_rules.conf',
 								'default_static_rules.conf': 'static_rules.conf',
@@ -15,72 +16,73 @@ class locked():
 		for config_file in config_files_list:
 			if not os.path.exists(database.get('config_directory')+config_files_list[config_file]):
 				copyfile(config_file, database.get('config_directory')+config_files_list[config_file])
-
-	@staticmethod
-	def cli_entrypoint(database, args):
+	
+	@classmethod
+	def cli_entrypoint(cls, args):
 		if len(args) > 0:
 			if args[0] == 'unlock':
-				locked.unlock(database)
+				cls.unlock()
 			else:
-				locked.lock(database)
+				cls.lock()
 		else:
 			print('Nothing to do')
 	
-	@staticmethod
-	def startup_entrypoint(database):
-		print('tmp')#locked.lock(database)
+	@classmethod
+	def startup_entrypoint(cls):
+		database.runtime_space['reload_rules'] = cls.lock
+		cls.lock()
 	
-	@staticmethod
-	def web_entrypoint(database, client_ip, get, post):
+	@classmethod
+	def web_entrypoint(cls, client_ip, get, post):
 		if len(get) > 0:
 			if get[0] == 'lock':
-				locked.lock(database)
+				cls.lock()
 				return 200, '<script>document.location = "/"</script>'
-		locked.unlock(database, client_ip)
-		return locked.return_interface(database)
+		cls.unlock(client_ip)
+		return cls.return_interface()
 	
-	@staticmethod
-	def unlock(database, client_ip):
+	@classmethod
+	def unlock(cls, client_ip):
 		print('Apply iptables rules')
-		locked.flush_rules(database)
-		locked.define_all_policies(database, 'DROP')
-		locked.apply_rules_from(database, 'essential_rules.conf')
-		locked.apply_rules_from(database, 'static_rules.conf')
-		locked.apply_rules_from(database, 'management_rules.conf', client_ip)
-		locked.start_timer(database)
+		cls.flush_rules()
+		cls.define_all_policies('DROP')
+		cls.apply_rules_from('essential_rules.conf')
+		cls.apply_rules_from('static_rules.conf')
+		cls.apply_rules_from('management_rules.conf', client_ip)
+		cls.start_timer()
 	
-	@staticmethod
-	def apply_rules_from(database, file_name, client_ip=None):
+	@classmethod
+	def apply_rules_from(cls, file_name, client_ip=None):
 		file_path = database.get('config_directory')+file_name
 		if os.path.exists(file_path):
 			iptables = pyptables.Iptables()
 			iptables.import_from(file_path, client_ip)
 	
-	@staticmethod
-	def flush_rules(database):
+	@classmethod
+	def flush_rules(cls):
 		iptables = pyptables.Iptables()
 		iptables.flush()
 	
-	@staticmethod
-	def define_all_policies(database, policy):
+	@classmethod
+	def define_all_policies(cls, policy):
 		iptables = pyptables.Iptables()
 		iptables.change_policy(policy)
 	
-	@staticmethod
-	def start_timer(database):
-		t = Timer(60, locked.lock, [database])
+	@classmethod
+	def start_timer(cls):
+		t = Timer(60, cls.lock)
 		t.start()
 	
-	@staticmethod
-	def lock(database):
-		locked.flush_rules(database)
-		locked.define_all_policies(database, 'DROP')
-		locked.apply_rules_from(database, 'essential_rules.conf')
-		locked.apply_rules_from(database, 'static_rules.conf')
+	@classmethod
+	def lock(cls):
+		cls.flush_rules()
+		cls.define_all_policies('DROP')
+		cls.apply_rules_from('essential_rules.conf')
+		cls.apply_rules_from('static_rules.conf')
 		print('Closed '+database.get('server'))
 	
-	@staticmethod
-	def return_interface(database):
+	@classmethod
+	def return_interface(cls):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
 			return 200, html

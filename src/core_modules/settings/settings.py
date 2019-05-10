@@ -2,20 +2,21 @@ import os
 import hashlib
 import urllib.parse
 from firedoor_modules_manager import *
+from config_database import database
 
 class settings():
 	
-	@staticmethod
-	def web_entrypoint(database, client_ip, get, post):
+	@classmethod
+	def web_entrypoint(cls, client_ip, get, post):
 		if len(post) > 0:
 			if 'action' in post:
 				if post['action'] == 'change_settings':
-					result = settings.change_settings(database, post)
-					return settings.return_interface(database, result[0], result[1])
-		return settings.return_interface(database)
+					result = settings.change_settings(post)
+					return settings.return_interface(result[0], result[1])
+		return settings.return_interface()
 	
-	@staticmethod
-	def change_settings(database, post):
+	@classmethod
+	def change_settings(cls, post):
 		post_data = {}
 		for key in post:
 			if len(post[key]) > 0:
@@ -66,7 +67,8 @@ class settings():
 						modules_manager.modules[module_name].change_state(desirate_state)
 		return 'Settings saved','green'
 	
-	def generate_modules_checklist():
+	@classmethod
+	def generate_modules_checklist(cls):
 		modules = modules_manager.get_optional_modules_list()
 		checklist = ''
 		for module_name in modules:
@@ -78,8 +80,8 @@ class settings():
 			checklist += '</tr>\n'
 		return checklist
 
-	@staticmethod
-	def return_interface(database, msg='', color='white'):
+	@classmethod
+	def return_interface(cls, msg='', color='white'):
 		with open('interface.html', 'r') as interface:
 			html = interface.read()
 			html = html.replace('{{msg_color}}', color)
