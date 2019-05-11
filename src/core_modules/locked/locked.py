@@ -30,7 +30,10 @@ class locked():
 	@classmethod
 	def startup_entrypoint(cls):
 		database.runtime_space['reload_rules'] = cls.lock
-		cls.lock()
+		try:
+			cls.lock()
+		except:
+			pass
 	
 	@classmethod
 	def web_entrypoint(cls, client_ip, get, post):
