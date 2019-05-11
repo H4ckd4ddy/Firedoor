@@ -15,6 +15,6 @@ class XSS():
 			load = str(payload)
 			data = urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(load))))
 			if cls.XSS_pattern.search(data):
-				database.runtime_space['report_ip'](packet[IP].src, 3, 'Cross-site scripting')
+				database.runtime_space['report_ip'](packet[IP].src, 30, 'Cross-site scripting')
 		except:
 			pass

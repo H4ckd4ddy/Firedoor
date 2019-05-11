@@ -93,7 +93,7 @@ class the_blacklist():
 	
 	@classmethod
 	def startup_entrypoint(cls):
-		database.set('ban_score', 10, 'blacklist')
+		database.set('ban_score', 100, 'blacklist')
 		database.set('period', 1, 'blacklist')  # in hours
 		database.set('storage_time', 500, 'blacklist')  # in hours
 		database.set('ban_duration', 24, 'blacklist')  # in hours
