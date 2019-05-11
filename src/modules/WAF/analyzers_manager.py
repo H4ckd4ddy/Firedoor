@@ -32,7 +32,6 @@ class analyzers_manager:
 		if TCP in packet:
 			if packet[TCP].payload:
 				if packet[IP].dport == 80:
-					print(cls.analyzers)
 					cls.analyse(packet)
 
 	@classmethod
