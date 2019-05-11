@@ -1,9 +1,13 @@
 import json
 import pyptables
 import time
+import threading
+from threading import Thread
 from config_database import database
 
 class the_blacklist():
+	
+	thread = None
 	
 	class fact:
 		timestamp = None
@@ -20,6 +24,18 @@ class the_blacklist():
 			data['score'] = self.score
 			data['comment'] = self.comment
 			return data
+		
+		def is_valid(self):
+			if (time.time() < (self.timestamp + database.get('period', 'blacklist'))):
+				return True
+			else:
+				return False
+		
+		def keep_stored(self):
+			if time.time() < (self.timestamp + database.get('storage_time', 'blacklist')):
+				return True
+			else:
+				return False
 	
 	class ip:
 		ip_address = None
@@ -34,8 +50,15 @@ class the_blacklist():
 		def get_score(self):
 			total = 0
 			for fact in self.facts:
-				total += fact.score
+				if fact.is_valid():
+					total += fact.score
 			return total
+		
+		def check_score(self):
+			if self.get_score() >= database.get('ban_score', 'blacklist'):
+				self.block()
+			else:
+				self.status = 'active'
 		
 		def block(self):
 			iptables = pyptables.Iptables()
@@ -60,14 +83,24 @@ class the_blacklist():
 		def get_facts(self):
 			result = []
 			for f in self.facts:
-				result.append(f.to_list())
+				if f.keep_stored():
+					result.append(f.to_list())
+				else:
+					del self.facts[f]
 			return result
 	
 	ip_list = {}
 	
 	@classmethod
 	def startup_entrypoint(cls):
+		database.set('ban_score', 100, 'blacklist')
+		database.set('period', 1, 'blacklist')  # in hours
+		database.set('storage_time', 500, 'blacklist')  # in hours
+		database.set('ban_duration', 24, 'blacklist')  # in hours
 		database.runtime_space['report_ip'] = cls.report_ip
+		cls.thread = Thread(target = cls.set_interval, args=[cls.check_banned, 3600])
+		cls.thread.daemon = True
+		cls.thread.start()
 	
 	@classmethod
 	def web_entrypoint(cls, client_ip, get, post):
@@ -120,8 +153,25 @@ class the_blacklist():
 		if addr not in cls.ip_list:
 			cls.ip_list[addr] = the_blacklist.ip(addr)
 		cls.ip_list[addr].add_fact(level, comment)
-		if cls.ip_list[addr].get_score() >= 10:
-			cls.ip_list[addr].block()
+		cls.ip_list[addr].check_score()
+	
+	@classmethod
+	def set_interval(cls, func, time):
+		cls.thread.stop = False
+		e = threading.Event()
+		while not e.wait(time):
+			if not cls.thread:
+				exit
+			elif cls.thread.stop:
+				exit()
+			else:
+				func()
+	
+	@classmethod
+	def check_banned(cls):
+		database.runtime_space['reload_rules']()
+		for i in cls.ip_list:
+			cls.ip_list[i].check_score()
 	
 	@classmethod
 	def return_settings_page(cls):
