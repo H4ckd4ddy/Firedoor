@@ -26,22 +26,22 @@ class the_blacklist():
 			return data
 		
 		def is_valid(self):
-			if (time.time() < (self.timestamp + database.get('period', 'blacklist'))):
+			if (time.time() < (self.timestamp + (database.get('period', 'blacklist')*3600))):
 				return True
 			else:
 				return False
 		
 		def keep_stored(self):
-			if time.time() < (self.timestamp + database.get('storage_time', 'blacklist')):
+			if time.time() < (self.timestamp + database.get('storage_time', 'blacklist')*3600):
 				return True
 			else:
 				return False
 	
 	class ip:
-		ip_address = None
-		facts = []
-		status = 'active'
+		
 		def __init__(self, addr):
+			self.facts = []
+			self.status = 'active'
 			self.ip_address = addr
 		
 		def add_fact(self, score, comment):
@@ -93,7 +93,7 @@ class the_blacklist():
 	
 	@classmethod
 	def startup_entrypoint(cls):
-		database.set('ban_score', 100, 'blacklist')
+		database.set('ban_score', 10, 'blacklist')
 		database.set('period', 1, 'blacklist')  # in hours
 		database.set('storage_time', 500, 'blacklist')  # in hours
 		database.set('ban_duration', 24, 'blacklist')  # in hours
