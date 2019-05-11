@@ -25,7 +25,11 @@ class database:
 	
 	@classmethod
 	def get(cls, key, module='general_settings'):
-		return cls.database[module][key]
+		try:
+			value = cls.database[module][key]
+		except:
+			value = None
+		return value
 	
 	@classmethod
 	def set(cls, key, value, module='general_settings'):
