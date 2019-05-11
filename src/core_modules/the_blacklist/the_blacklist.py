@@ -67,28 +67,38 @@ class the_blacklist():
 	
 	@classmethod
 	def startup_entrypoint(cls):
-		database.runtime_space['report_ip'] = the_blacklist.report_ip
+		database.runtime_space['report_ip'] = cls.report_ip
 	
 	@classmethod
 	def web_entrypoint(cls, client_ip, get, post):
 		if len(get) > 0:
 			if get[0] == 'ip':
 				if len(get) == 3:
-					return 200, the_blacklist.manage_ip(get[1], get[2])
+					return 200, cls.manage_ip(get[1], get[2])
 				elif len(get) == 2:
 					if get[1] in the_blacklist.ip_list:
-						return 200, json.dumps(the_blacklist.ip_list[get[1]].get_facts())
-				return 200, json.dumps(the_blacklist.get_ip_list())
-		return the_blacklist.return_interface()
+						return 200, json.dumps(cls.ip_list[get[1]].get_facts())
+				return 200, json.dumps(cls.get_ip_list())
+			elif get[0] == 'settings_page':
+				return cls.return_settings_page()
+			
+			if len(get) == 2:
+				if get[0] == 'settings':
+					setting_value = database.get(get[1], 'the_blacklist')
+					if setting_value:
+						return 200, json.dumps(setting_value)
+					else:
+						return 404, 'setting not found'
+		return cls.return_interface()
 	
 	@classmethod
 	def manage_ip(cls, ip, action):
 		result = {}
 		try:
 			if action == 'block':
-				the_blacklist.ip_list[ip].block()
+				cls.ip_list[ip].block()
 			elif action == 'remove':
-				del the_blacklist.ip_list[ip]
+				del cls.ip_list[ip]
 		except:
 			result['status'] = 'error'
 			result['msg'] = 'Unable to perfom action on IP'
@@ -101,17 +111,23 @@ class the_blacklist():
 	@classmethod
 	def get_ip_list(cls):
 		result = []
-		for i in the_blacklist.ip_list:
-			result.append(the_blacklist.ip_list[i].to_list())
+		for i in cls.ip_list:
+			result.append(cls.ip_list[i].to_list())
 		return result
 	
 	@classmethod
 	def report_ip(cls, addr, level, comment):
-		if addr not in the_blacklist.ip_list:
-			the_blacklist.ip_list[addr] = the_blacklist.ip(addr)
-		the_blacklist.ip_list[addr].add_fact(level, comment)
-		if the_blacklist.ip_list[addr].get_score() >= 10:
-			the_blacklist.ip_list[addr].block()
+		if addr not in cls.ip_list:
+			cls.ip_list[addr] = the_blacklist.ip(addr)
+		cls.ip_list[addr].add_fact(level, comment)
+		if cls.ip_list[addr].get_score() >= 10:
+			cls.ip_list[addr].block()
+	
+	@classmethod
+	def return_settings_page(cls):
+		with open('settings.html', 'r') as interface:
+			html = interface.read()
+			return 200, html
 	
 	@classmethod
 	def return_interface(cls):
