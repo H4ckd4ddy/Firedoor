@@ -29,10 +29,13 @@ class analyzers_manager:
 
 	@classmethod
 	def packets_handler(cls, packet):
-		if TCP in packet:
-			if packet[TCP].payload:
-				if packet[IP].dport == 80:
-					cls.analyse(packet)
+		try:
+			if TCP in packet:
+				if packet[TCP].payload:
+					if packet[IP].dport == 80:
+						cls.analyse(packet)
+		except:
+			pass
 
 	@classmethod
 	def analyse(cls, packet):

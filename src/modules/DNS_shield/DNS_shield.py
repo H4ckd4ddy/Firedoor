@@ -46,11 +46,14 @@ class DNS_shield():
 	
 	@classmethod
 	def packet_callback(cls, packet):
-		if UDP in packet:
-			if packet[UDP].payload:
-				if IP in packet:
-					if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 0:
-						cls.check_dns_request(packet)
+		try:
+			if UDP in packet:
+				if packet[UDP].payload:
+					if IP in packet:
+						if packet.haslayer(DNS) and packet.getlayer(DNS).qr == 0:
+							cls.check_dns_request(packet)
+		except:
+			pass
 	
 	@classmethod
 	def check_dns_request(cls, packet):
