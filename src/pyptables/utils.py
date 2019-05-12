@@ -74,26 +74,10 @@ def get_config(**kwargs):
     return output
 
 
-#USELESS
-def clr(string, status):
-    try:
-        attr = []
-        if status == 'G':
-            attr.append('92')
-        elif status == 'R':
-            attr.append('91')
-        elif status == 'B':
-            attr.append('34')
-        elif status == 'O':
-            attr.append('93')
-        attr.append('1')
-        return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string)
-    except:
-        pass
-
-
 def exec_cmd(cmd):
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    print(cmd)
+    return 'ok'
+    """p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     result = p.communicate()[0].decode("utf-8")
     result = str(result)
-    return result
+    return result"""

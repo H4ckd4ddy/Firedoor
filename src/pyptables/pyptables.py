@@ -3,7 +3,7 @@ import os
 import sys
 import subprocess
 import json
-from .utils import rule_to_list, default_binpath, get_config, clr, exec_cmd
+from .utils import rule_to_list, default_binpath, get_config, exec_cmd
 
 
 class Iptables:
@@ -73,14 +73,7 @@ class Iptables:
                         curule.append(parameter)
                 exec_cmd(curule)
         self.write_policy()
-
-    def optimize(self):
-        for c in self.chains:
-            for r in c.rules:
-                # Must be int later
-                if r.hits == '0':
-                    txt = "[{}] You can remove this rule: ".format(clr('*', 'G'))
-                    print(txt, r.get())
+        
 class Rule:
 
     def __init__(self, **kwargs):
