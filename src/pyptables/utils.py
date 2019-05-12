@@ -75,9 +75,7 @@ def get_config(**kwargs):
 
 
 def exec_cmd(cmd):
-    print(cmd)
-    return 'ok'
-    """p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     result = p.communicate()[0].decode("utf-8")
     result = str(result)
-    return result"""
+    return result
