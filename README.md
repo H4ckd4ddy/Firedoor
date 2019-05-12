@@ -106,3 +106,26 @@ Le mot de passe par defaut est ```firedoor```
 Vous pouvez alors gerer Firedoor directement via l'interface web, avec les differents modules
 
 (Pour activer les autres modules, utilisez le modules settings)
+
+
+# A faire
+
+* Commentaires
+* PEP8
+* Homogenisation du code des modules
+* Interface utilisant un API REST
+
+
+à ajouter :
+
+| Module        |  Fontion à ajouter                                           |
+| :------------ | :----------------------------------------------------------- |
+| Settings      | Activation de l'authentification par OTP                     |
+| The blacklist | Ajout d'une interface de reglages (durée de ban, scoring...) |
+| Rules manager | Ajouter un tableau de gestion des regles de management       |
+| Monitoring    | Ajout d'une sonde pour le disque                             |
+| WAF           | Ajout d'une interface de gestion des analyzers               |
+| Docker        | Ajout de la visualisation des ports et des logs              |
+| SSHTTP        | Le faire fonctionner                                         |
+| Updater       | Le faire                                                     |
+| Bake-up       | Le faire                                                     |
