@@ -148,10 +148,11 @@
 						table.innerHTML = '';
 						
 						titles = document.createElement("tr");
-						titles_list = ['type', 'protocol', 'port', 'comment', 'action', ''];
+						titles_list = ['type', 'protocol', 'port_type', 'port', 'comment', 'action', ''];
 						options_lists = {
 							'type': ['INPUT', 'OUTPUT'],
 							'protocol': ['tcp', 'udp'],
+							'port_type': ['destination_port', 'source_port'],
 							'action': ['ACCEPT', 'DROP', 'BLOCK']
 						}
 						for (var title = 0;title < titles_list.length;title++) {
@@ -164,7 +165,13 @@
 						for (var rule = 0;rule < rules.length;rule++) {
 							for (var element = 0;element < rules[rule].length;element++) {
 								if (rules[rule][element].charCodeAt(0) == 45) {
-									rules[rule].splice(element,1);
+									if (rules[rule][element] == "--dports") {
+                                        rules[rule][element] = "destination_port";
+                                    }else if (rules[rule][element] == "--sports") {
+                                        rules[rule][element] = "source_port";
+                                    }else{
+										rules[rule].splice(element,1);
+									}
 								}
 							}
 							for (var element = 0;element < rules[rule].length;element++) {
@@ -177,7 +184,7 @@
 						}
 						
 						if (add_rule) {
-                            new_rule = ["INPUT", "tcp", "", "", "ACCEPT"];
+                            new_rule = ["INPUT", "tcp", "", "", "", "ACCEPT"];
 							rules.push(new_rule);
                         }
 						
@@ -216,7 +223,7 @@
                         }
 						tr = document.createElement("tr");
 						td = document.createElement("td");
-						td.colSpan = '6';
+						td.colSpan = '7';
 						td.innerHTML = '+';
 						tr.id = 'add_line';
 						tr.addEventListener("click", add, false);
@@ -256,18 +263,18 @@
 					rules[i][3] = tds[1].querySelectorAll("select")[0].value;
 					rules[i][4] = '-m';
 					rules[i][5] = 'multiport';
-					if (rules[i][1] == 'OUTPUT') {
+					if (tds[2].querySelectorAll("select")[0].value == "source_port") {
                         rules[i][6] = '--sports';
                     }else{
 						rules[i][6] = '--dports';
 					}
-					rules[i][7] = tds[2].querySelectorAll("input")[0].value;
+					rules[i][7] = tds[3].querySelectorAll("input")[0].value;
 					rules[i][8] = '-m';
 					rules[i][9] = 'comment';
 					rules[i][10] = '--comment';
-					rules[i][11] = tds[3].querySelectorAll("input")[0].value;
+					rules[i][11] = tds[4].querySelectorAll("input")[0].value;
 					rules[i][12] = '-j';
-					rules[i][13] = tds[4].querySelectorAll("select")[0].value;
+					rules[i][13] = tds[5].querySelectorAll("select")[0].value;
 				}
 				
 				rules.splice(0,1);
