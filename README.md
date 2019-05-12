@@ -12,6 +12,8 @@ Lors de la mise en service d'un serveur, après l'installation de l'OS, nous obt
 
 L'objectif de Firedoor, et d'intervenir à ce moment là, pour securiser cet unique accès, et vous accompagner dans la gestion et securisation de votre serveur.
 
+C'est en quelque sorte la brique elementaire que l'on place en 1er, avant de positionner les services derriere
+
 ## Standalone ?
 
 Firedoor est entirerement developpé en Python, puis packadgé par PyInstall pour obtenir un binaire sans dependance.
@@ -49,17 +51,58 @@ Lors de l'accès à l'interface web, Firedoor liste les modules disposants d'une
 
 De la même maniere lors de la saisi d'un commande, les arguments sont directement envoyé dans l'entrypoint CLI du module concerné (si il en dispose)
 
-## Modules en développement
+## Liste des modules
 
-| Nom           | Type               |  Fontion                      |
-| :------------ | :----------------- | :---------------------------- |
-| Settings      | Core module        | Permet de modifier les parametres basiques (MDP, Hostname, port...) |
-| Locked        | Core module | Cache les ports d'administration (SSH, FTP...) quand ils ne sont pas utiles. Cela permet de prevenir les scans et les indexations comme Shodan ou ZoomEye |
-| Rules manager | Module additionnel | Permet de gerer simplement les regles du firewall pour rendre accessible les services legitimes |
-| SSHTTP        | Module additionnel | Client ligne de commande web pour administrer votre serveur depuis n'importe quel poste sans rien installer |
-| Monitoring    | Module additionnel | Assure la surveillance l'enregistrement et la consultation des constantes vitales de votre serveur |
-| Flows         | Module additionnel | Analyse du trafic entrant, WAF, detection DoS/DDoS |
-| Docker        | Module additionnel | Permet la visualisation et l'administration de ses conteneurs Docker |
-| Updater       | Module additionnel | Verifie les MAJ à effectuer et permet de definire une politique de MAJ automatique |
-| Apache manager | Module additionnel | Tout est dans le titre (gestion de confs, vHosts, certificats) |
-| Bake-up       | Module additionnel | [Sauvegarde incrementielle par Hard-linking](https://github.com/H4ckd4ddy/Bake-up) |
+| Nom           | Status    | Type               |  Fontion                      |
+| :------------ | :-------- | :----------------- | :---------------------------- |
+| Settings      | Pret      | Core module        | Permet de modifier les parametres basiques (MDP, Hostname, port, TLS...) ainsi qu'activer et desactiver les autres modules |
+| Locked        | Pret      | Core module | Cache les ports d'administration (SSH, FTP...) quand ils ne sont pas utiles. Cela permet de prevenir les scans et les indexations comme Shodan ou ZoomEye |
+| The blacklist | Pret      | Core module        | Enregistre les raport des modules de detection, evalue le danger de chaque IP puis la bloque si necessaire |
+| Rules manager | Pret      | Module additionnel | Permet de gerer simplement les regles du firewall pour rendre accessible les services legitimes |
+| Monitoring    | Pret      | Module additionnel | Assure la surveillance l'enregistrement et la consultation des constantes vitales de votre serveur |
+| WAF           | Pret (basique) | Module additionnel | Analyse du trafic entrant, detection SQLI/XSS |
+| DNS Shield    | Pret (basique) | Module additionnel | Analyse du trafic entrant, detection des DDoS par reflexion/amplification |
+| Docker        | Pret      | Module additionnel | Permet la visualisation et l'administration de ses conteneurs Docker |
+| SSHTTP        | En cours  | Module additionnel | Client ligne de commande web pour administrer votre serveur depuis n'importe quel poste sans rien installer |
+| Updater       | A faire   | Module additionnel | Verifie les MAJ à effectuer et permet de definire une politique de MAJ automatique |
+| Bake-up       | A faire   | Module additionnel | [Sauvegarde incrementielle par Hard-linking](https://github.com/H4ckd4ddy/Bake-up) |
+
+
+# Installtion
+
+Python 3.7 requis
+
+### Execution directe du code source
+
+```
+cd src/
+pip3 install -r requirements.txt  # Installation des dépendances
+./firedoor.py install  # Installation de Firedoor
+./firedoor.py  # Lancement de Firedoor
+```
+
+###### ou
+
+### Construction et installation du binaire
+
+```
+pip3 install -r src/requirements.txt  # Installation des dépendances
+pip3 install pyinstaller
+./build.sh  # Creation du binaire
+chmod +x dist/firedoor
+cp dist/firedoor /usr/sbin/firedoor
+/usr/sbin/firedoor install
+systemctl start firedoor
+```
+
+# Utilisation
+
+Une fois Firedoor lancé, un serveur web se lance par defaut sur le port 80
+
+(Si vous devez modifier la configuration avant de lancer Firedoor, editez directement /etc/firedoor/database.json)
+
+Le mot de passe par defaut est ```firedoor```
+
+Vous pouvez alors gerer Firedoor directement via l'interface web, avec les differents modules
+
+(Pour activer les autres modules, utilisez le modules settings)
