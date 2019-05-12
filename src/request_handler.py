@@ -63,7 +63,7 @@ class request_handler(BaseHTTPRequestHandler):
 						session_cookie = 'session={}'.format(token)
 						self.return_html(200, '<script>location.reload();</script>', session_cookie)
 					else:
-						database.runtime_space['report_ip'](self.client_address[0], 2, 'Firedoor login attempt')
+						database.runtime_space['report_ip'](self.client_address[0], 35, 'Firedoor login attempt')
 						self.return_html(200, self.return_loginpage().replace('<!---->', 'Access denied'))
 						return
 			self.return_html(200, self.return_loginpage())
