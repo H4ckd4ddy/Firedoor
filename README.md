@@ -129,3 +129,13 @@ Vous pouvez alors gerer Firedoor directement via l'interface web, avec les diffe
 | SSHTTP        | Le faire fonctionner                                         |
 | Updater       | Le faire                                                     |
 | Bake-up       | Le faire                                                     |
+
+
+# Screenshots
+
+![Page de connexion](screenshots/login.png)
+![Page de connexion](screenshots/home.png)
+![Page de connexion](screenshots/docker.png)
+![Page de connexion](screenshots/blacklist.png)
+![Page de connexion](screenshots/blacklist_facts.png)
+![Page de connexion](screenshots/monitoring.png)
