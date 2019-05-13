@@ -42,6 +42,7 @@ class the_blacklist():
 		def __init__(self, addr):
 			self.facts = []
 			self.status = 'active'
+			self.blocked_timestamp
 			self.ip_address = addr
 		
 		def add_fact(self, score, comment):
@@ -55,10 +56,14 @@ class the_blacklist():
 			return total
 		
 		def check_score(self):
-			if self.get_score() >= database.get('ban_score', 'blacklist'):
-				self.block()
+			if self.status == 'blocked':
+				if time.time() > (self.timestamp + database.get('ban_duration', 'blacklist')*3600):
+					self.status == 'active'
+				else:
+					self.block()
 			else:
-				self.status = 'active'
+				if self.get_score() >= database.get('ban_score', 'blacklist'):
+					self.block()
 		
 		def block(self):
 			iptables = pyptables.Iptables()
@@ -71,6 +76,7 @@ class the_blacklist():
 								)
 			iptables.add(rule)
 			iptables.commit()
+			self.blocked_timestamp = time.time()
 			self.status = 'blocked'
 		
 		def to_list(self):
