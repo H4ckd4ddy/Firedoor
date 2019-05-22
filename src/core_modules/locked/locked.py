@@ -11,7 +11,8 @@ class locked():
 		config_files_list = {
 								'essential_rules.conf': 'essential_rules.conf',
 								'default_static_rules.conf': 'static_rules.conf',
-								'default_management_rules.conf': 'management_rules.conf'
+								'default_management_rules.conf': 'management_rules.conf',
+								'default_block_rules.conf': 'block_rules.conf'
 							}
 		for config_file in config_files_list:
 			if not os.path.exists(database.get('config_directory')+config_files_list[config_file]):
@@ -49,6 +50,7 @@ class locked():
 		print('Apply iptables rules')
 		cls.flush_rules()
 		cls.define_all_policies('DROP')
+		cls.apply_rules_from('block_rules.conf')
 		cls.apply_rules_from('essential_rules.conf')
 		cls.apply_rules_from('static_rules.conf')
 		cls.apply_rules_from('management_rules.conf', client_ip)
@@ -80,9 +82,9 @@ class locked():
 	def lock(cls):
 		cls.flush_rules()
 		cls.define_all_policies('DROP')
+		cls.apply_rules_from('block_rules.conf')
 		cls.apply_rules_from('essential_rules.conf')
 		cls.apply_rules_from('static_rules.conf')
-		print('Closed '+database.get('server'))
 	
 	@classmethod
 	def return_interface(cls):

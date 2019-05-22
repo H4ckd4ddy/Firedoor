@@ -42,7 +42,7 @@ class the_blacklist():
 		def __init__(self, addr):
 			self.facts = []
 			self.status = 'active'
-			self.blocked_timestamp
+			self.blocked_timestamp = 0
 			self.ip_address = addr
 		
 		def add_fact(self, score, comment):
