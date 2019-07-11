@@ -50,7 +50,7 @@ class locked():
 		return cls.return_interface()
 	
 	@classmethod
-	def unlock(cls, client_ip):
+	def unlock(cls, client_ip=None):
 		print('Apply iptables rules')
 		cls.flush_rules()
 		cls.define_all_policies('DROP')
