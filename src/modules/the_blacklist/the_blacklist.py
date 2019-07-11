@@ -161,7 +161,7 @@ class the_blacklist():
 	@classmethod
 	def report_ip(cls, addr, level, comment):
 		if addr not in cls.ip_list:
-			cls.ip_list[addr] = the_blacklist.ip(addr)
+			cls.ip_list[addr] = cls.ip(addr)
 		cls.ip_list[addr].add_fact(level, comment)
 		cls.ip_list[addr].check_score()
 	
