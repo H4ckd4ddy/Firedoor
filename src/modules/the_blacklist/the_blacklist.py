@@ -58,7 +58,7 @@ class the_blacklist():
 		
 		def check_score(self):
 			if self.status == 'blocked':
-				if time.time() > (self.timestamp + database.get('ban_duration', 'blacklist')*3600):
+				if time.time() > (self.blocked_timestamp + database.get('ban_duration', 'blacklist')*3600):
 					self.status == 'active'
 				else:
 					self.block()
