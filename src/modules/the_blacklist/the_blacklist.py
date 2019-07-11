@@ -103,10 +103,15 @@ class the_blacklist():
 		database.set('period', 1, 'blacklist')  # in hours
 		database.set('storage_time', 500, 'blacklist')  # in hours
 		database.set('ban_duration', 24, 'blacklist')  # in hours
-		database.runtime_space['report_ip'] = cls.report_ip
+		#database.runtime_space['report_ip'] = cls.report_ip
 		cls.thread = Thread(target = cls.set_interval, args=[cls.check_banned, 3600])
 		cls.thread.daemon = True
 		cls.thread.start()
+	
+	@classmethod
+	def event_listener(cls, event):
+		if event.type == "report_ip":
+			cls.report_ip(event.data.ip, event.data.level, event.data.comment)
 	
 	@classmethod
 	def web_entrypoint(cls, client_ip, get, post):
