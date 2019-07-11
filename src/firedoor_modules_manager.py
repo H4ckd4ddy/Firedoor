@@ -121,6 +121,14 @@ class modules_manager:
 					cls.modules[module_name].obj.startup_entrypoint()
 					os.chdir(database.get('base_directory'))
 
+	@classmethod
+	def broadcast_event(cls, event):
+		for module_name in cls.modules:
+			if cls.modules[module_name].enable:
+				if hasattr(cls.modules[module_name].obj, 'event_listener'):
+					os.chdir(cls.modules[module_name].path)
+					cls.modules[module_name].obj.event_listener(event)
+					os.chdir(database.get('base_directory'))
 
 	@classmethod
 	def get_optional_modules_list(cls):
