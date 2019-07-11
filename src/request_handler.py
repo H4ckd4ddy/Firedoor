@@ -63,7 +63,14 @@ class request_handler(BaseHTTPRequestHandler):
 						session_cookie = 'session={}'.format(token)
 						self.return_html(200, '<script>location.reload();</script>', session_cookie)
 					else:
-						database.runtime_space['report_ip'](self.client_address[0], 35, 'Firedoor login attempt')
+						#database.runtime_space['report_ip'](self.client_address[0], 35, 'Firedoor login attempt')
+						event = {}
+						event['type'] = 'report_ip'
+						event['data'] = {}
+						event['data']['ip'] = self.client_address[0]
+						event['data']['level'] = 35
+						event['data']['comment'] = 'Firedoor login attempt'
+						modules_manager.broadcast_event(event)
 						self.return_html(200, self.return_loginpage().replace('<!---->', 'Access denied'))
 						return
 			self.return_html(200, self.return_loginpage())

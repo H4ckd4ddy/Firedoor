@@ -1,6 +1,7 @@
 from config_database import database
 from scapy.all import *
 import urllib
+from firedoor_modules_manager import modules_manager
 
 class XSS():
 	
@@ -15,6 +16,13 @@ class XSS():
 			load = str(payload)
 			data = urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(load))))
 			if cls.XSS_pattern.search(data):
-				database.runtime_space['report_ip'](packet[IP].src, 30, 'Cross-site scripting')
+				#database.runtime_space['report_ip'](packet[IP].src, 30, 'Cross-site scripting')
+				event = {}
+				event['type'] = 'report_ip'
+				event['data'] = {}
+				event['data']['ip'] = packet[IP].src
+				event['data']['level'] = 30
+				event['data']['comment'] = 'Cross-site scripting'
+				modules_manager.broadcast_event(event)	
 		except:
 			pass

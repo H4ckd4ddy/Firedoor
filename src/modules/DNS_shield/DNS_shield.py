@@ -1,6 +1,7 @@
 from scapy.all import *
 from threading import Thread
 from config_database import database
+from  firedoor_modules_manager import modules_manager
 
 class DNS_shield():
 	
@@ -64,7 +65,14 @@ class DNS_shield():
 		query_type = packet.getlayer(DNS).qd.fields['qtype']
 		if query_type == 255:
 			print('ANY request detected !!!')
-			database.runtime_space['report_ip'](packet[IP].src, 10, 'Any request DNS')
+			#database.runtime_space['report_ip'](packet[IP].src, 10, 'Any request DNS')
+			event = {}
+			event['type'] = 'report_ip'
+			event['data'] = {}
+			event['data']['ip'] = packet[IP].src
+			event['data']['level'] = 10
+			event['data']['comment'] = 'Any request DNS'
+			modules_manager.broadcast_event(event)
 	
 	@classmethod
 	def web_entrypoint(cls, client_ip, get, post):

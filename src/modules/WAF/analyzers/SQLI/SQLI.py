@@ -2,6 +2,7 @@ from config_database import database
 from scapy.all import *
 import urllib
 import re
+from firedoor_modules_manager import modules_manager
 
 class SQLI():
 	
@@ -16,6 +17,13 @@ class SQLI():
 			load = str(payload)
 			data = urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(load))))
 			if cls.SQLI_pattern.search(data):
-				database.runtime_space['report_ip'](packet[IP].src, 50, 'SQL injection')
+				#database.runtime_space['report_ip'](packet[IP].src, 50, 'SQL injection')
+				event = {}
+				event['type'] = 'report_ip'
+				event['data'] = {}
+				event['data']['ip'] = packet[IP].src
+				event['data']['level'] = 50
+				event['data']['comment'] = 'SQL injection'
+				modules_manager.broadcast_event(event)
 		except:
 			pass

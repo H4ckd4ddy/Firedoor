@@ -110,8 +110,8 @@ class the_blacklist():
 	
 	@classmethod
 	def event_listener(cls, event):
-		if event.type == "report_ip":
-			cls.report_ip(event.data.ip, event.data.level, event.data.comment)
+		if event['type'] == 'report_ip':
+			cls.report_ip(event['data']['ip'], event['data']['level'], event['data']['comment'])
 	
 	@classmethod
 	def web_entrypoint(cls, client_ip, get, post):
