@@ -4,6 +4,7 @@ import time
 import threading
 from threading import Thread
 from config_database import database
+from firedoor_modules_manager import modules_manager
 
 class the_blacklist():
 	
@@ -103,7 +104,6 @@ class the_blacklist():
 		database.set('period', 1, 'blacklist')  # in hours
 		database.set('storage_time', 500, 'blacklist')  # in hours
 		database.set('ban_duration', 24, 'blacklist')  # in hours
-		#database.runtime_space['report_ip'] = cls.report_ip
 		cls.thread = Thread(target = cls.set_interval, args=[cls.check_banned, 3600])
 		cls.thread.daemon = True
 		cls.thread.start()
@@ -180,7 +180,9 @@ class the_blacklist():
 	
 	@classmethod
 	def check_banned(cls):
-		database.runtime_space['reload_rules']()
+		event = {}
+		event['type'] = 'reload_rules'
+		modules_manager.broadcast_event(event)
 		for i in cls.ip_list:
 			cls.ip_list[i].check_score()
 	

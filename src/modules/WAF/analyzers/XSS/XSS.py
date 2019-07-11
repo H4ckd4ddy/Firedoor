@@ -16,7 +16,6 @@ class XSS():
 			load = str(payload)
 			data = urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(load))))
 			if cls.XSS_pattern.search(data):
-				#database.runtime_space['report_ip'](packet[IP].src, 30, 'Cross-site scripting')
 				event = {}
 				event['type'] = 'report_ip'
 				event['data'] = {}

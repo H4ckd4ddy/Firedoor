@@ -30,12 +30,16 @@ class locked():
 	
 	@classmethod
 	def startup_entrypoint(cls):
-		database.runtime_space['reload_rules'] = cls.lock
 		try:
 			cls.lock()
 		except:
 			pass
 	
+	@classmethod
+	def event_listener(cls, event):
+		if event['type'] == 'reload_rules':
+			cls.lock()
+
 	@classmethod
 	def web_entrypoint(cls, client_ip, get, post):
 		if len(get) > 0:

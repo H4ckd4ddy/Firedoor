@@ -65,7 +65,6 @@ class DNS_shield():
 		query_type = packet.getlayer(DNS).qd.fields['qtype']
 		if query_type == 255:
 			print('ANY request detected !!!')
-			#database.runtime_space['report_ip'](packet[IP].src, 10, 'Any request DNS')
 			event = {}
 			event['type'] = 'report_ip'
 			event['data'] = {}

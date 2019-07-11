@@ -1,6 +1,7 @@
 from urllib.parse import unquote
 import json
 from config_database import database
+from firedoor_modules_manager import modules_manager
 
 class rules_manager():
 	
@@ -11,7 +12,10 @@ class rules_manager():
 				new_rules = unquote(unquote(post['rules'])).replace('+', ' ')
 				new_rules = json.dumps(json.loads(new_rules), indent=4)
 				rules_file.write(new_rules)
-			database.runtime_space['reload_rules']()
+			event = {}
+			event['type'] = 'reload_rules'
+			modules_manager.broadcast_event(event)
+
 			return 200,'OK'
 		elif len(get) > 0:
 			if get[0] == 'rules':

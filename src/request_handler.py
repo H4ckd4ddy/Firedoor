@@ -7,7 +7,7 @@ import shutil
 from shutil import copyfile
 
 from config_database import database
-from firedoor_modules_manager import *
+from firedoor_modules_manager import modules_manager
 
 sessions = {}
 
@@ -63,7 +63,6 @@ class request_handler(BaseHTTPRequestHandler):
 						session_cookie = 'session={}'.format(token)
 						self.return_html(200, '<script>location.reload();</script>', session_cookie)
 					else:
-						#database.runtime_space['report_ip'](self.client_address[0], 35, 'Firedoor login attempt')
 						event = {}
 						event['type'] = 'report_ip'
 						event['data'] = {}

@@ -5,7 +5,6 @@ class database:
 	
 	file = None
 	database = None
-	runtime_space = {}
 	
 	@classmethod
 	def init(cls, file):

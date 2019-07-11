@@ -17,7 +17,6 @@ class SQLI():
 			load = str(payload)
 			data = urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(urllib.parse.unquote(load))))
 			if cls.SQLI_pattern.search(data):
-				#database.runtime_space['report_ip'](packet[IP].src, 50, 'SQL injection')
 				event = {}
 				event['type'] = 'report_ip'
 				event['data'] = {}
