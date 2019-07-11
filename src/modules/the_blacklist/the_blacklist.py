@@ -1,5 +1,5 @@
 import json
-import pyptables
+#import pyptables
 import time
 import threading
 from threading import Thread
@@ -60,14 +60,12 @@ class the_blacklist():
 			if self.status == 'blocked':
 				if time.time() > (self.blocked_timestamp + database.get('ban_duration', 'blacklist')*3600):
 					self.status == 'active'
-				else:
-					self.block()
 			else:
 				if self.get_score() >= database.get('ban_score', 'blacklist'):
 					self.block()
 		
 		def block(self):
-			iptables = pyptables.Iptables()
+			"""iptables = pyptables.Iptables()
 			rule = pyptables.Rule(
 									chain='INPUT',
 									position='top',
@@ -76,9 +74,10 @@ class the_blacklist():
 									comment='IP blocked'
 								)
 			iptables.add(rule)
-			iptables.commit()
+			iptables.commit()"""
 			self.blocked_timestamp = time.time()
 			self.status = 'blocked'
+			the_blacklist.export_blocklist()
 		
 		def to_list(self):
 			data = {}
@@ -185,6 +184,26 @@ class the_blacklist():
 		modules_manager.broadcast_event(event)
 		for i in cls.ip_list:
 			cls.ip_list[i].check_score()
+	
+	@classmethod
+	def export_blocklist(cls):
+		with open(database.get('config_directory')+'block_rules.conf', 'w') as blocklist_file:
+			rules = []
+			for i in cls.ip_list:
+				if cls.ip_list[i].status == 'blocked':
+					rule_number = len(rules)
+					rules[rule_number] = []
+					rules[rule_number][0] = '-A'
+					rules[rule_number][1] = 'INPUT'
+					rules[rule_number][2] = '-s'
+					rules[rule_number][3] = cls.ip_list[i].ip_address
+					rules[rule_number][4] = '-j'
+					rules[rule_number][5] = 'DROP'
+			block_rules = json.dumps(rules, indent=4)
+			blocklist_file.write(block_rules)
+		event = {}
+		event['type'] = 'reload_rules'
+		modules_manager.broadcast_event(event)
 	
 	@classmethod
 	def return_settings_page(cls):
