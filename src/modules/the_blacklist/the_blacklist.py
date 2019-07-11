@@ -191,14 +191,15 @@ class the_blacklist():
 			rules = []
 			for i in cls.ip_list:
 				if cls.ip_list[i].status == 'blocked':
-					rule_number = len(rules)
-					rules[rule_number] = []
-					rules[rule_number][0] = '-A'
-					rules[rule_number][1] = 'INPUT'
-					rules[rule_number][2] = '-s'
-					rules[rule_number][3] = cls.ip_list[i].ip_address
-					rules[rule_number][4] = '-j'
-					rules[rule_number][5] = 'DROP'
+					rule = [
+						'-A',
+						'INPUT',
+						'-s',
+						cls.ip_list[i].ip_address,
+						'-j',
+						'DROP'
+					]
+					rules.append(rule)
 			block_rules = json.dumps(rules, indent=4)
 			blocklist_file.write(block_rules)
 		event = {}
