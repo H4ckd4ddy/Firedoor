@@ -14,7 +14,7 @@ class module:
 		if os.path.isdir(directory+'/'+module_name):
 			self.name = module_name
 			self.required = required
-			self.path = directory+'/'+module_name
+			self.path = database.get('base_directory')+'/'+directory+'/'+module_name
 			sys.path.insert(0, self.path)
 			module = __import__(module_name)
 			self.obj = getattr(module, module_name)
