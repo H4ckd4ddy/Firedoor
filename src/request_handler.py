@@ -61,7 +61,7 @@ class request_handler(BaseHTTPRequestHandler):
 						sessions[token] = {}
 						sessions[token]['timestamp'] = time.time()
 						session_cookie = 'session={}'.format(token)
-						self.return_html(200, '<script>location.reload();</script>', session_cookie)
+						self.return_html(200, '<script>document.location = '/';</script>', session_cookie)
 					else:
 						event = {}
 						event['type'] = 'report_ip'
