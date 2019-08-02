@@ -1,7 +1,5 @@
 # Firedoor
 
-Léo -> [http://hello-leo.tk](http://hello-leo.tk)
-
 Le but de ce projet est de concevoir un gestionnaire de serveur : 
 
 * standalone
