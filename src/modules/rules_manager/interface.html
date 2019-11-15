@@ -1,0 +1,344 @@
+<html>
+	<head>
+		<title>{{title}}</title>
+		<style>
+		body {
+			text-align: center;
+			background: black;
+			font-family: arial;
+		}
+		
+		a {
+			text-decoration: none;
+		}
+		
+		.cache {
+			display: none;
+		}
+		
+		#title {
+			text-align: center;
+			color: white;
+			font-weight: bold;
+			font-size: 30px;
+		}
+		
+		#return {
+			position: fixed;
+			top: 5px;
+			left: 5px;
+			text-decoration: none;
+			color: white;
+			font-size: 40px;
+			font-weight: bold;
+		}
+		
+		#server {
+			color: white;
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			font-size: 20px;
+		}
+		
+		#page {
+			width: 90%;
+			margin-top: 10%;
+		}
+		
+		button {
+			width: 350px;
+			background: #4f4f4f;
+			border: none;
+			font-size: 25px;
+			color: white;
+			padding: 5px;
+			border-radius: 5px;
+			outline: none;
+		}
+		
+		button {
+			margin-top: 20px;
+			background: #3b3b3b;
+		}
+		
+		textarea {
+			width: 70%;
+			height: 50%;
+			font-size: 15px;
+		}
+		
+		table {
+			 border-collapse: collapse;
+			 font-size: 15px;
+			 box-shadow: 1px 1px 10px #555;
+			 margin-bottom: 30px;
+		}
+		
+		tr {
+			background: white;
+		}
+		
+		table tr:nth-child(2n+1) {
+			background: #d1d1d1;
+		}
+		
+		table tr:first-child {
+			color: white;
+			background: #f54949;
+			font-weight: bold;
+			text-align: center;
+		}
+		
+		table td{
+			padding: 12px;
+		}
+		
+		.cross {
+			color: red;
+			cursor: pointer;
+		}
+		
+		#add_line {
+			text-align: center;
+			font-weight: bold;
+			font-size: 25px;
+			cursor: pointer;
+		}
+		
+		#info {
+			position: fixed;
+			bottom: 10px;
+			right: 10px;
+			font-size: 18px;
+			color: red;
+			padding: 5px;
+			background: #4f4f4f;
+			border-radius: 3px;
+			opacity: 0;
+			transition: opacity 1s;
+		}
+		</style>
+		<script>
+			function get_rules(add_rule) {
+				var xhr = null; 
+				if(window.XMLHttpRequest){ // Firefox et autres
+					xhr = new XMLHttpRequest(); 
+				}else if(window.ActiveXObject){ // Internet Explorer 
+					try {
+						xhr = new ActiveXObject('Msxml2.XMLHTTP');
+					} catch (e) {
+						xhr = new ActiveXObject('Microsoft.XMLHTTP');
+					}
+				}else{
+					alert('Votre navigateur ne supporte pas les objets XMLHTTPRequest...'); 
+					xhr = false; 
+				}
+				
+				xhr.onreadystatechange = function(){
+						
+					if( xhr.readyState < 4 ){
+						
+					}else if(xhr.readyState == 4 && xhr.status == 200){
+						
+						rules = JSON.parse(xhr.responseText);
+						
+						table = document.getElementById('rules_table');
+						
+						table.innerHTML = '';
+						
+						titles = document.createElement("tr");
+						titles_list = ['type', 'protocol', 'port_type', 'port', 'comment', 'action', ''];
+						options_lists = {
+							'type': ['INPUT', 'OUTPUT'],
+							'protocol': ['tcp', 'udp'],
+							'port_type': ['destination_port', 'source_port'],
+							'action': ['ACCEPT', 'DROP', 'BLOCK']
+						}
+						for (var title = 0;title < titles_list.length;title++) {
+							td = document.createElement("td");
+							td.innerHTML = titles_list[title];
+							titles.appendChild(td);
+						}
+						table.appendChild(titles);
+						
+						for (var rule = 0;rule < rules.length;rule++) {
+							for (var element = 0;element < rules[rule].length;element++) {
+								if (rules[rule][element].charCodeAt(0) == 45) {
+									if (rules[rule][element] == "--dports") {
+                                        rules[rule][element] = "destination_port";
+                                    }else if (rules[rule][element] == "--sports") {
+                                        rules[rule][element] = "source_port";
+                                    }else{
+										rules[rule].splice(element,1);
+									}
+								}
+							}
+							for (var element = 0;element < rules[rule].length;element++) {
+								if (rules[rule][element].startsWith('comment')) {
+                                    rules[rule].splice(element,1);
+                                }else if (rules[rule][element].startsWith('multiport')) {
+                                    rules[rule].splice(element,1);
+                                }
+							}
+						}
+						
+						if (add_rule) {
+                            new_rule = ["INPUT", "tcp", "", "", "", "ACCEPT"];
+							rules.push(new_rule);
+                        }
+						
+						for (var rule = 0;rule < rules.length;rule++) {
+							tr = document.createElement("tr");
+							for (var element = 0;element < rules[rule].length;element++) {
+								td = document.createElement("td");
+								if (titles_list[element] in options_lists) {
+									options = options_lists[titles_list[element]];
+									select = document.createElement("select");
+                                    for(let option = 0;option < options.length;option++){
+										option_element = document.createElement("option");
+										option_element.innerHTML = options[option];
+										if (options[option] == rules[rule][element]) {
+                                            option_element.selected = true;
+                                        }
+										select.appendChild(option_element);
+									}
+									td.appendChild(select);
+                                }else{
+									input = document.createElement("input");
+									input.type = 'text';
+									input.placeholder = titles_list[element];
+									input.value = rules[rule][element];
+									td.appendChild(input);
+								}
+								tr.appendChild(td);
+							}
+							td = document.createElement("td");
+							td.innerHTML = 'X';
+							td.className = 'cross';
+							td.addEventListener("click", remove, false);
+							td.onClick = 'remove()';
+							tr.appendChild(td);
+							table.appendChild(tr);
+                        }
+						tr = document.createElement("tr");
+						td = document.createElement("td");
+						td.colSpan = '7';
+						td.innerHTML = '+';
+						tr.id = 'add_line';
+						tr.addEventListener("click", add, false);
+						tr.appendChild(td);
+						table.appendChild(tr);
+					}
+					
+				};
+				
+				xhr.open('GET', '/rules_manager/rules', true);
+				xhr.send(null);
+			}
+			
+			function remove(event) {
+				var targetElement = event.target || event.srcElement;
+				targetElement = targetElement.parentNode;
+                targetElement.parentNode.removeChild(targetElement);
+            }
+			
+			function add(event) {
+				get_rules(true);
+            }
+			
+			function save() {
+				
+				var table = document.getElementById("rules_table");
+				var trs = table.querySelectorAll("tr");
+				
+				var rules = [];
+				
+				for(let i = 1;i < (trs.length-1);i++){
+					var tds = trs[i].querySelectorAll("td");
+					rules[i] = [];
+					rules[i][0] = '-A';
+					rules[i][1] = tds[0].querySelectorAll("select")[0].value;
+					rules[i][2] = '-p';
+					rules[i][3] = tds[1].querySelectorAll("select")[0].value;
+					rules[i][4] = '-m';
+					rules[i][5] = 'multiport';
+					if (tds[2].querySelectorAll("select")[0].value == "source_port") {
+                        rules[i][6] = '--sports';
+                    }else{
+						rules[i][6] = '--dports';
+					}
+					rules[i][7] = tds[3].querySelectorAll("input")[0].value;
+					rules[i][8] = '-m';
+					rules[i][9] = 'comment';
+					rules[i][10] = '--comment';
+					rules[i][11] = tds[4].querySelectorAll("input")[0].value;
+					rules[i][12] = '-j';
+					rules[i][13] = tds[5].querySelectorAll("select")[0].value;
+				}
+				
+				rules.splice(0,1);
+				
+                var xhr = null; 
+				if(window.XMLHttpRequest){ // Firefox et autres
+					xhr = new XMLHttpRequest(); 
+				}else if(window.ActiveXObject){ // Internet Explorer 
+					try {
+						xhr = new ActiveXObject('Msxml2.XMLHTTP');
+					} catch (e) {
+						xhr = new ActiveXObject('Microsoft.XMLHTTP');
+					}
+				}else{
+					alert('Votre navigateur ne supporte pas les objets XMLHTTPRequest...'); 
+					xhr = false; 
+				}
+				
+				xhr.onreadystatechange = function(){
+						
+					if( xhr.readyState < 4 ){
+						
+					}else if(xhr.readyState == 4 && xhr.status == 200){
+						
+						if(xhr.responseText == "OK"){
+							info('Change saved');
+						}else{
+							info('Saving error', true);
+						}
+						
+					}
+					
+				};
+				
+				xhr.open('POST', '/rules_manager/rules', true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.send("rules="+JSON.stringify(rules));
+            }
+			
+			function info(msg, is_error){
+				var div = document.getElementById("info");
+				msg = is_error ? "⚠ "+msg : msg;
+				div.innerHTML = msg;
+				var color = is_error ? "red" : "green";
+				div.style.color = color;
+				div.style.opacity = 1;
+				setTimeout(function(){
+					div.style.opacity = 0;
+				}, 3000);
+			}
+		</script>
+	</head>
+	<body>
+		<center>
+			<div id="title">Static rules</div>
+			<a id="return" href="/"><</a>
+			<div id="server">Server : {{server_name}}</div>
+			<div id="page">
+				<table id="rules_table">
+				</table>
+				<button type="submit" onClick="save()">Save & apply</button>
+				<script>get_rules();</script>
+				<div id="info"></div>
+			</div>
+		</center>
+	</body>
+</html>

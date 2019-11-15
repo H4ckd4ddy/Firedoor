@@ -1,0 +1,62 @@
+<html>
+	<head>
+		<title>{{title}}</title>
+		<style>
+		body {
+			text-align: center;
+			background: black;
+			font-family: arial;
+		}
+		
+		.cache {
+			display: none;
+		}
+		
+		#compteur {
+			color: green;
+		}
+		
+		#deco {
+			position: fixed;
+			top: 5px;
+			left: 5px;
+			text-decoration: none;
+			color: white;
+			font-size: 40px;
+			font-weight: bold;
+		}
+		
+		#server {
+			color: white;
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			font-size: 20px;
+		}
+		
+		#page {
+			width: 90%;
+			margin-top: 7%;
+		}
+		
+		.icon {
+			display: inline-block;
+			margin: 50px;
+			height: 150px;
+			width: 150px;
+			border-radius: 15px;
+			background-size: cover;
+			cursor: pointer;
+		}
+		</style>
+	</head>
+	<body>
+		<center>
+			<a id="deco" href="logout">X</a>
+			<div id="server">Server : {{server_name}}</div>
+			<div id="page">
+				{{modules}}
+			</div>
+		</center>
+	</body>
+</html>

@@ -1,0 +1,180 @@
+<html>
+	<head>
+		<title>{{title}}</title>
+		<style>
+		body {
+			text-align: center;
+			background: black;
+			font-family: arial;
+		}
+		
+		a {
+			text-decoration: none;
+		}
+		
+		.cache {
+			display: none;
+		}
+		
+		#title {
+			text-align: center;
+			color: white;
+			font-weight: bold;
+			font-size: 30px;
+		}
+		
+		#retour {
+			position: fixed;
+			top: 5px;
+			left: 5px;
+			text-decoration: none;
+			color: white;
+			font-size: 40px;
+			font-weight: bold;
+		}
+		
+		#serveur {
+			color: white;
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			font-size: 20px;
+		}
+		
+		#page {
+			width: 90%;
+			margin-top: 100px;
+		}
+		
+		input, button {
+			width: 350px;
+			background: #4f4f4f;
+			border: none;
+			font-size: 25px;
+			color: white;
+			padding: 5px;
+			border-radius: 5px;
+			outline: none;
+		}
+		
+		button {
+			margin-top: 20px;
+			background: #3b3b3b;
+		}
+		
+		.onoffswitch {
+			position: relative; width: 60px;
+			-webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+		}
+		.onoffswitch-checkbox {
+			display: none;
+		}
+		.onoffswitch-label {
+			display: block; overflow: hidden; cursor: pointer;
+			border: 2px solid #E3E3E3; border-radius: 36px;
+		}
+		.onoffswitch-inner {
+			display: block; width: 200%; margin-left: -100%;
+			transition: margin 0.3s ease-in 0s;
+		}
+		.onoffswitch-inner:before, .onoffswitch-inner:after {
+			display: block; float: left; width: 50%; height: 36px; padding: 0; line-height: 36px;
+			font-size: 16px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+			box-sizing: border-box;
+		}
+		.onoffswitch-inner:before {
+			content: "";
+			padding-left: 10px;
+			background-color: #3BBEFF; color: #FFFFFF;
+		}
+		.onoffswitch-inner:after {
+			content: "";
+			padding-right: 10px;
+			background-color: #000000; color: #666666;
+			text-align: right;
+		}
+		.onoffswitch-switch {
+			display: block; width: 36px; margin: 0px;
+			background: #FFFFFF;
+			position: absolute; top: 0; bottom: 0;
+			right: 20px;
+			border: 2px solid #E3E3E3; border-radius: 36px;
+			transition: all 0.3s ease-in 0s; 
+		}
+		.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+			margin-left: 0;
+		}
+		.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+			right: 0px; 
+		}
+		
+		#info {
+			position: fixed;
+			bottom: 20px;
+			right: 20px;
+			display: inline-block;
+			font-size: 18px;
+			color: {{msg_color}};
+			padding: 5px;
+			background: #4f4f4f;
+			border-radius: 3px;
+		}
+		
+		#modules_checklist {
+			color: white;
+		}
+		
+		#modules_checklist td {
+			padding-left: 25px;
+			padding-right: 25px;
+		}
+		
+		#modules_checklist input {
+			width: auto;
+		}
+		</style>
+		<script>
+		function password_change_activation(){
+			document.getElementById('password_change').className = 'cache';
+			document.getElementById('password_inputs').className = '';
+		}
+		</script>
+	</head>
+	<body>
+		<center>
+			<div id="title">Settings</div>
+			<a id="retour" href="/"><</a>
+			<div id="page">
+				<div id="info">{{msg}}</div>
+				<form method="POST">
+					<input type="hidden" name="action" value="change_settings" />
+					<input type="text" name="server" placeholder="Server name" value="{{server_name}}" /><br/>
+					<button type="button" id="password_change" onClick="password_change_activation()" >Change password</button>
+					<div id="password_inputs" class="cache">
+						<input type="password" name="password_1" placeholder="Password" /><br/>
+						<input type="password" name="password_2" placeholder="Confirmation" /><br/>
+					</div>
+					<br/><br/>
+					<input type="text" name="web_interface_port" placeholder="Web port" value="{{web_interface_port}}" /><br/>
+					<br/><br/>
+					<div class="onoffswitch">
+						<input type="checkbox" name="TLS" class="onoffswitch-checkbox" id="myonoffswitch" {{TLS}} >
+						<label class="onoffswitch-label" for="myonoffswitch">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>
+					<br/><br/>
+					<input type="text" name="cert_path" placeholder="TLS cert path" value="{{cert_path}}" /><br/>
+					<input type="text" name="key_path" placeholder="STLS key path" value="{{key_path}}" /><br/>
+					<br/><br/>
+					<table id="modules_checklist">
+						{{modules_checklist}}
+					</table>
+					<br/><br/>
+					<button type="submit">Save</button>
+				</form>
+			</div>
+		</center>
+	</body>
+</html>

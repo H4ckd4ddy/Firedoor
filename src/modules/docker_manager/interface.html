@@ -1,0 +1,319 @@
+<html>
+	<head>
+		<title>{{title}}</title>
+		<style>
+		body {
+			text-align: center;
+			background: black;
+			font-family: arial;
+		}
+		
+		a {
+			text-decoration: none;
+		}
+		
+		.cache {
+			display: none;
+		}
+		
+		#title {
+			text-align: center;
+			color: white;
+			font-weight: bold;
+			font-size: 30px;
+		}
+		
+		#return {
+			position: fixed;
+			top: 5px;
+			left: 5px;
+			text-decoration: none;
+			color: white;
+			font-size: 40px;
+			font-weight: bold;
+		}
+		
+		#server {
+			color: white;
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			font-size: 20px;
+		}
+		
+		#page {
+			width: 90%;
+			margin-top: 10%;
+		}
+		
+		.container {
+			width: 500px;
+			height: 120px;
+			background: #4f4f4f;
+			padding: 5px;
+			border-radius: 5px;
+			margin: 20px;
+			display: inline-block;
+			position: relative;
+		}
+		
+		.container .error {
+			background: red;
+		}
+		
+		.container .short_id {
+			font-weight: bold;
+			position: absolute;
+			top: 10%;
+			left: 5%;
+		}
+		
+		.container .name {
+			font-weight: bold;
+			position: absolute;
+			top: 10%;
+			right: 10%;
+		}
+		
+		.container .image {
+			position: absolute;
+			bottom: 10%;
+			left: 5%;
+		}
+		
+		.container .status {
+			position: absolute;
+			bottom: 10%;
+			right: 10%;
+		}
+		
+		.container .exited {
+			color: grey;
+		}
+		
+		.container .running {
+			color: green;
+		}
+		
+		.container .paused {
+			color: orange;
+		}
+		
+		.container .list {
+			list-style-type: none;
+			height: 100%;
+			width: 8%;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			right: 0;
+			margin: 0;
+			text-align: center;
+			border-left: solid 1px black;
+		}
+		
+		.container .list .icon {
+			margin-top: 10px;
+			cursor: pointer;
+		}
+		
+		#info {
+			position: fixed;
+			bottom: 10px;
+			right: 10px;
+			font-size: 18px;
+			color: red;
+			padding: 5px;
+			background: #4f4f4f;
+			border-radius: 3px;
+			opacity: 0;
+			transition: opacity 1s;
+		}
+		</style>
+	</head>
+	<script>
+		document.addEventListener("DOMContentLoaded", function(event) {
+			get_containers();
+			window.setInterval(get_containers, 5000);
+		});
+		
+		function shorter(str){
+			if(str.length > 27){
+                return str.substring(0,27)+"...";
+            }else{
+				return str
+			}
+        }
+		
+		function get_containers(){
+			
+			var page = document.getElementById("containers");
+			
+			var xhr = null; 
+			if(window.XMLHttpRequest){ // Firefox et autres
+				xhr = new XMLHttpRequest(); 
+			}else if(window.ActiveXObject){ // Internet Explorer 
+				try {
+					xhr = new ActiveXObject('Msxml2.XMLHTTP');
+				} catch (e) {
+					xhr = new ActiveXObject('Microsoft.XMLHTTP');
+				}
+			}else{
+				alert('Votre navigateur ne supporte pas les objets XMLHTTPRequest...'); 
+				xhr = false; 
+			}
+			
+			xhr.onreadystatechange = function(){
+					
+				if( xhr.readyState < 4 ){
+					
+					//loading
+					
+				}else if(xhr.readyState == 4 && xhr.status == 200){
+					
+					var data = JSON.parse(xhr.responseText);
+					page.innerHTML = "";
+					for (var container in data){
+						var container_div = document.createElement("div");
+						container_div.className = "container";
+						
+						var short_id_div = document.createElement("div");
+						short_id_div.className = "short_id";
+						short_id_div.innerHTML = "ID : "+shorter(data[container].short_id);
+						container_div.appendChild(short_id_div);
+						
+						var name_div = document.createElement("div");
+						name_div.className = "name";
+						name_div.innerHTML = "Name : "+shorter(data[container].name);
+						container_div.appendChild(name_div);
+						
+						var image_div = document.createElement("div");
+						image_div.className = "image";
+						image_div.innerHTML = "Image : "+shorter(data[container].image);
+						container_div.appendChild(image_div);
+						
+						var status_div = document.createElement("div");
+						status_div.className = "status "+data[container].status;
+						status_div.innerHTML = data[container].status;
+						if(data[container].status == "error"){
+                            container_div.style.background = "red";
+                        }
+						container_div.appendChild(status_div);
+						
+						var list_div = document.createElement("div");
+						list_div.className = "list"
+						
+						if(data[container].status == "running" || data[container].status == "paused"){
+							var shutdown_icon = document.createElement("div");
+							shutdown_icon.className = "icon"
+							shutdown_icon.innerHTML = "🛑";
+							(function (id) {
+								shutdown_icon.addEventListener("click", function(){
+									action("stop", id);
+								});
+							})(data[container].id);
+							list_div.appendChild(shutdown_icon);
+						}
+						if(data[container].status == "running"){
+							var pause_icon = document.createElement("div");
+							pause_icon.className = "icon"
+							pause_icon.innerHTML = "⏸";
+							(function (id) {
+								pause_icon.addEventListener("click", function(){
+									action("pause", id);
+								});
+							})(data[container].id);
+							list_div.appendChild(pause_icon);
+                        }else{
+							var startup_icon = document.createElement("div");
+							startup_icon.className = "icon"
+							startup_icon.innerHTML = "▶️";
+							(function (id) {
+								startup_icon.addEventListener("click", function(){
+									action("start", id);
+								});
+							})(data[container].id);
+							list_div.appendChild(startup_icon);
+						}
+						
+						container_div.appendChild(list_div);
+						
+						page.appendChild(container_div);
+					}
+					
+				}else{
+					info("Server unreachable", true)
+				}
+				
+			}
+			
+			xhr.open('GET', 'docker_manager/containers/', true);
+			xhr.send(null);
+			
+		}
+		
+		function action(type, id){
+			
+			var xhr = null; 
+			if(window.XMLHttpRequest){ // Firefox et autres
+				xhr = new XMLHttpRequest(); 
+			}else if(window.ActiveXObject){ // Internet Explorer 
+				try {
+					xhr = new ActiveXObject('Msxml2.XMLHTTP');
+				} catch (e) {
+					xhr = new ActiveXObject('Microsoft.XMLHTTP');
+				}
+			}else{
+				alert('Votre navigateur ne supporte pas les objets XMLHTTPRequest...'); 
+				xhr = false; 
+			}
+			
+			xhr.onreadystatechange = function(){
+					
+				if( xhr.readyState < 4 ){
+					
+					//loading
+					
+				}else if(xhr.readyState == 4 && xhr.status == 200){
+					
+					var data = JSON.parse(xhr.responseText);
+					var is_error = data["status"] == "ok" ? false : true;
+					info(data["msg"], is_error);
+					get_containers();
+					
+				}else{
+					info("Server unreachable", true)
+				}
+				
+			}
+			
+			xhr.open('GET', 'docker_manager/containers/'+id+'/'+type, true);
+			xhr.send(null);
+		}
+		
+		function info(msg, is_error){
+			var div = document.getElementById("info");
+			msg = is_error ? "⚠ "+msg : msg;
+			div.innerHTML = msg;
+			var color = is_error ? "red" : "green";
+			div.style.color = color;
+			div.style.opacity = 1;
+			setTimeout(function(){
+				div.style.opacity = 0;
+			}, 3000);
+		}
+	</script>
+	<body>
+		<center>
+			<div id="title">Docker manager</div>
+			<a id="return" href="/"><</a>
+			<div id="server">Server : {{server_name}}</div>
+			<div id="page">
+				<div id="containers">
+					
+				</div>
+				<div id="info"></div>
+			</div>
+		</center>
+	</body>
+</html>

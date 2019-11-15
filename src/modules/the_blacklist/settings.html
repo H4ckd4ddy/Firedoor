@@ -1,0 +1,186 @@
+<html>
+	<head>
+		<title>{{title}}</title>
+		<style>
+		body {
+			text-align: center;
+			background: black;
+			font-family: arial;
+		}
+		
+		a {
+			text-decoration: none;
+		}
+		
+		.cache {
+			display: none;
+		}
+		
+		#title {
+			text-align: center;
+			color: white;
+			font-weight: bold;
+			font-size: 30px;
+		}
+		
+		#return {
+			position: fixed;
+			top: 5px;
+			left: 5px;
+			text-decoration: none;
+			color: white;
+			font-size: 40px;
+			font-weight: bold;
+		}
+		
+		#server {
+			color: white;
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			font-size: 20px;
+		}
+		
+		#page {
+			width: 90%;
+			margin-top: 75px;
+		}
+		
+		input, button {
+			width: 350px;
+			background: #4f4f4f;
+			border: none;
+			font-size: 25px;
+			color: white;
+			padding: 5px;
+			border-radius: 5px;
+			outline: none;
+		}
+		
+		button {
+			margin-top: 20px;
+			background: #3b3b3b;
+		}
+		
+		#info {
+			position: fixed;
+			bottom: 10px;
+			right: 10px;
+			font-size: 18px;
+			color: red;
+			padding: 5px;
+			background: #4f4f4f;
+			border-radius: 3px;
+			opacity: 0;
+			transition: opacity 1s;
+		}
+		</style>
+	</head>
+	<script>
+		
+		function get_settings(){
+			
+			var xhr = null; 
+			if(window.XMLHttpRequest){ // Firefox et autres
+				xhr = new XMLHttpRequest(); 
+			}else if(window.ActiveXObject){ // Internet Explorer 
+				try {
+					xhr = new ActiveXObject('Msxml2.XMLHTTP');
+				} catch (e) {
+					xhr = new ActiveXObject('Microsoft.XMLHTTP');
+				}
+			}else{
+				alert('Votre navigateur ne supporte pas les objets XMLHTTPRequest...'); 
+				xhr = false; 
+			}
+			
+			xhr.onreadystatechange = function(){
+					
+				if( xhr.readyState < 4 ){
+					
+					//loading
+					
+				}else if(xhr.readyState == 4 && xhr.status == 200){
+					
+					var data = JSON.parse(xhr.responseText);
+					
+					
+				}else{
+					info("Server unreachable", true)
+				}
+				
+			}
+			
+			xhr.open('GET', '/the_blacklist/ip/', true);
+			xhr.send(null);
+			
+		}
+		
+		function save(){
+			
+			var xhr = null; 
+			if(window.XMLHttpRequest){ // Firefox et autres
+				xhr = new XMLHttpRequest(); 
+			}else if(window.ActiveXObject){ // Internet Explorer 
+				try {
+					xhr = new ActiveXObject('Msxml2.XMLHTTP');
+				} catch (e) {
+					xhr = new ActiveXObject('Microsoft.XMLHTTP');
+				}
+			}else{
+				alert('Votre navigateur ne supporte pas les objets XMLHTTPRequest...'); 
+				xhr = false; 
+			}
+			
+			xhr.onreadystatechange = function(){
+					
+				if( xhr.readyState < 4 ){
+					
+					//loading
+					
+				}else if(xhr.readyState == 4 && xhr.status == 200){
+					
+					var data = JSON.parse(xhr.responseText);
+					var is_error = data["status"] == "ok" ? false : true;
+					info(data["msg"], is_error);
+					get_ip();
+					
+				}else{
+					info("Server unreachable", true)
+				}
+				
+			}
+			
+			xhr.open('POST', '/the_blacklist/ip/'+ip+'/'+type, true);
+			xhr.send('test=test');
+		}
+		
+		function info(msg, is_error){
+			var div = document.getElementById("info");
+			msg = is_error ? "⚠ "+msg : msg;
+			div.innerHTML = msg;
+			var color = is_error ? "red" : "green";
+			div.style.color = color;
+			div.style.opacity = 1;
+			setTimeout(function(){
+				div.style.opacity = 0;
+			}, 3000);
+		}
+	</script>
+	<body>
+		<center>
+			<div id="title">Blacklist settings</div>
+			<a id="return" href="/"><</a>
+			<div id="server">Server : {{server_name}}</div>
+			<div id="page">
+				<div id="blacklist_settings">
+					<input type="hidden" name="action" value="change_settings" />
+					<input type="text" name="server" placeholder="Server name" value="{{server_name}}" /><br/>
+					<br/><br/>
+				</div>
+				<button type="submit">Save</button>
+				<div id="info"></div>
+			</div>
+		</center>
+	</body>
+</html>

@@ -1,0 +1,116 @@
+<html>
+	<head>
+		<title>{{{title}}</title>
+		<style>
+		body {
+			text-align: center;
+			background: black;
+			font-family: arial;
+		}
+		
+		a {
+			text-decoration: none;
+		}
+		
+		.cache {
+			display: none;
+		}
+		
+		#title {
+			text-align: center;
+			color: white;
+			font-weight: bold;
+			font-size: 30px;
+		}
+		
+		#retour {
+			position: fixed;
+			top: 5px;
+			left: 5px;
+			text-decoration: none;
+			color: white;
+			font-size: 40px;
+			font-weight: bold;
+		}
+		
+		#serveur {
+			color: white;
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			font-size: 20px;
+		}
+		
+		#page {
+			width: 90%;
+			margin-top: 10%;
+		}
+		
+		input, button {
+			width: 350px;
+			background: #4f4f4f;
+			border: none;
+			font-size: 25px;
+			color: white;
+			padding: 5px;
+			border-radius: 5px;
+			outline: none;
+		}
+		
+		button {
+			margin-top: 20px;
+			background: #3b3b3b;
+		}
+		#compteur {
+			color: green;
+			font-size: 60px;
+			font-family: arial;
+			font-weight: bold;
+		}
+		
+		#lock_button {
+			color: white;
+			font-weight: bold;
+			font-size: 30px;
+			margin: 75px;
+			padding: 10px;
+			background: #d43939;
+			display: inline-block;
+			border-radius: 10px;
+		}
+		</style>
+		<script>
+		function compteur(duree){
+			var date = new Date();
+			//var secondes = date.getSeconds();
+			//var compte = ((duree-1)*60)+(60-secondes);
+			var compte = (duree*60);
+			var fin_compteur = Math.round(Date.now()/1000) + compte;
+			document.getElementById("compteur").className = "";
+			actualisation(fin_compteur);
+		}
+		
+		function actualisation(fin_compteur){
+			var compte = fin_compteur - Math.round(Date.now()/1000);
+			if(compte > 0){
+				var minutes = Math.floor(compte/60);
+				var secondes = compte - Math.floor(minutes*60);
+				document.getElementById("compteur").innerHTML = "Unlocked for "+minutes+" min and "+secondes+" sec";
+				setTimeout("actualisation("+fin_compteur+");", 1000);
+			}else{
+				document.location = "/";
+			}
+		}
+		</script>
+	</head>
+	<body onload="compteur(1)">
+		<center>
+			<div id="title">Unlock</div>
+			<a id="retour" href="/"><</a>
+			<div id="page">
+				<div id="compteur"></div>
+				<a href="/locked/lock"><div id="lock_button">LOCK</div></a>
+			</div>
+		</center>
+	</body>
+</html>
