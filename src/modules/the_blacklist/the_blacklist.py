@@ -98,11 +98,21 @@ class the_blacklist():
 	ip_list = {}
 	
 	@classmethod
-	def startup_entrypoint(cls):
+	def install_entrypoint(cls):
 		database.set('ban_score', 100, 'blacklist')
 		database.set('period', 1, 'blacklist')  # in hours
 		database.set('storage_time', 500, 'blacklist')  # in hours
 		database.set('ban_duration', 24, 'blacklist')  # in hours
+	
+	@classmethod
+	def uninstall_entrypoint(cls):
+		database.rem('ban_score', 'blacklist')
+		database.rem('period', 'blacklist')
+		database.rem('storage_time', 'blacklist')
+		database.rem('ban_duration', 'blacklist')
+	
+	@classmethod
+	def startup_entrypoint(cls):
 		cls.thread = Thread(target = cls.set_interval, args=[cls.check_banned, 3600])
 		cls.thread.daemon = True
 		cls.thread.start()
